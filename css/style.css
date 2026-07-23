@@ -222,6 +222,34 @@ td.c-total   { background: transparent; color: var(--ink-2); font-weight: 600; }
 }
 .compat-breakdown b { color: var(--ink); }
 
+/* ---- team archetype ---- */
+.arch-box {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  font-size: 13.5px;
+  color: var(--ink-2);
+  line-height: 1.7;
+}
+.arch-label {
+  display: inline-block;
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--ink);
+  margin-right: 10px;
+}
+.arch-secondary {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid var(--grid);
+  font-size: 12.5px;
+  color: var(--muted);
+}
+.arch-secondary b { color: var(--ink-2); }
+
 /* ---- summary chips ---- */
 .chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
 .chip {

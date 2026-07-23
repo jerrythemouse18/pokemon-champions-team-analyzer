@@ -210,6 +210,7 @@ function renderAnalysis() {
   renderDefense(mons);
   renderOffense(mons);
   renderSummary(mons);
+  renderArchetype(mons);
   renderThreats(mons);
   if (mons.length >= 2) { renderCompat(mons); renderReplacement(mons); }
 }
@@ -318,6 +319,132 @@ function renderSummary(mons) {
   }
   if (mons.length < 6) items.push(`Add ${6 - mons.length} more Pokémon to complete the analysis.`);
   sug.innerHTML = items.length ? '<ul>' + items.map(i => `<li>${i}</li>`).join('') + '</ul>' : '';
+}
+
+// ---------- team archetype ----------
+// Reads abilities + stats only (no moveset data), so detection leans on the
+// signals the roster exposes: weather setters/abusers, pace, bulk, utility abilities.
+const WEATHER = {
+  Rain: {
+    setters: ['Drizzle'],
+    abusers: ['Swift Swim', 'Rain Dish', 'Hydration'],
+    stabBonus: ['Water'],
+    label: 'Rain'
+  },
+  Sun: {
+    setters: ['Drought', 'Orichalcum Pulse'],
+    abusers: ['Chlorophyll', 'Solar Power', 'Protosynthesis'],
+    stabBonus: ['Fire'],
+    label: 'Sun'
+  },
+  Sand: {
+    setters: ['Sand Stream'],
+    abusers: ['Sand Rush', 'Sand Force'],
+    stabBonus: [],
+    label: 'Sand'
+  },
+  Snow: {
+    setters: ['Snow Warning'],
+    abusers: ['Slush Rush', 'Ice Body'],
+    stabBonus: [],
+    label: 'Snow'
+  }
+};
+
+const STALL_ABILITIES = ['Regenerator', 'Unaware', 'Purifying Salt', 'Good as Gold', 'Hospitality'];
+const OFFENSE_ABILITIES = ['Speed Boost', 'Protosynthesis', 'Quark Drive', 'Sharpness', 'Adaptability', 'Huge Power', 'Pure Power'];
+
+function detectArchetype(mons) {
+  // `abilities` is every ability the mon can run — archetype detection asks
+  // "could this team play this style", so the chosen dropdown slot doesn't gate it.
+  const entries = mons.map(m => {
+    const p = byName.get(m.name);
+    return { name: m.name, abilities: p.abilities, stats: p.stats, types: p.types };
+  });
+  const n = entries.length;
+  const hasAbility = (e, list) => e.abilities.find(a => list.includes(a));
+
+  const candidates = []; // { label, score, evidence }
+
+  // --- weather ---
+  for (const w of Object.values(WEATHER)) {
+    const setters = entries.filter(e => hasAbility(e, w.setters));
+    if (!setters.length) continue;
+    const abusers = entries.filter(e => !setters.includes(e) && hasAbility(e, w.abusers));
+    const stab = w.stabBonus.length
+      ? entries.filter(e => !setters.includes(e) && e.types.some(t => w.stabBonus.includes(t)))
+      : [];
+    // A setter alone is a tendency, not an archetype: need abusers or 2+ STAB beneficiaries.
+    const score = setters.length * 2 + abusers.length * 2 + Math.min(stab.length, 3);
+    const evidence = [];
+    evidence.push(`<b>${setters.map(e => e.name).join(', ')}</b> set${setters.length > 1 ? '' : 's'} it automatically`);
+    if (abusers.length) evidence.push(`<b>${abusers.map(e => e.name).join(', ')}</b> abuse${abusers.length > 1 ? '' : 's'} it (${[...new Set(abusers.map(e => hasAbility(e, w.abusers)))].join(', ')})`);
+    if (stab.length) evidence.push(`${stab.length} member${stab.length > 1 ? 's' : ''} with boosted STAB (${stab.map(e => e.name).join(', ')})`);
+    candidates.push({ label: `${w.label} team`, score, threshold: 5, evidence: evidence.join('; ') });
+  }
+
+  // --- trick room ---
+  const trAttackers = entries.filter(e => e.stats.spe <= 50 && Math.max(e.stats.atk, e.stats.spa) >= 100);
+  if (trAttackers.length) {
+    candidates.push({
+      label: 'Trick Room',
+      score: trAttackers.length * 2.5,
+      threshold: 5,
+      evidence: `${trAttackers.length} slow, hard-hitting member${trAttackers.length > 1 ? 's' : ''} (${trAttackers.map(e => `<b>${e.name}</b> Spe ${e.stats.spe}`).join(', ')}) — strongest under Trick Room`
+    });
+  }
+
+  // --- hyper offense ---
+  const avgSpe = entries.reduce((s, e) => s + e.stats.spe, 0) / n;
+  const fastHitters = entries.filter(e => e.stats.spe >= 100 && Math.max(e.stats.atk, e.stats.spa) >= 110);
+  const offAbils = entries.filter(e => hasAbility(e, OFFENSE_ABILITIES));
+  if (fastHitters.length || offAbils.length) {
+    const score = fastHitters.length * 1.5 + offAbils.length * 1.5 + (avgSpe >= 95 ? 2 : 0);
+    const ev = [];
+    if (fastHitters.length) ev.push(`${fastHitters.length} fast heavy hitters (${fastHitters.map(e => `<b>${e.name}</b>`).join(', ')})`);
+    if (offAbils.length) ev.push(`snowball abilities: ${offAbils.map(e => `<b>${e.name}</b> (${hasAbility(e, OFFENSE_ABILITIES)})`).join(', ')}`);
+    if (avgSpe >= 95) ev.push(`team average Speed ${Math.round(avgSpe)}`);
+    candidates.push({ label: 'Hyper Offense', score, threshold: 6, evidence: ev.join('; ') });
+  }
+
+  // --- stall / fat balance ---
+  const bulky = entries.filter(e => (e.stats.hp + e.stats.def + e.stats.spd) >= 280);
+  const stallAbils = entries.filter(e => hasAbility(e, STALL_ABILITIES));
+  if (bulky.length >= 2 || stallAbils.length) {
+    const score = bulky.length * 1.2 + stallAbils.length * 2 + (avgSpe <= 70 ? 1.5 : 0);
+    const ev = [];
+    if (bulky.length) ev.push(`${bulky.length} high-bulk member${bulky.length > 1 ? 's' : ''} (${bulky.map(e => `<b>${e.name}</b>`).join(', ')})`);
+    if (stallAbils.length) ev.push(`longevity/anti-setup abilities: ${stallAbils.map(e => `<b>${e.name}</b> (${hasAbility(e, STALL_ABILITIES)})`).join(', ')}`);
+    candidates.push({ label: 'Stall / Fat Balance', score, threshold: 7, evidence: ev.join('; ') });
+  }
+
+  candidates.sort((a, b) => b.score - a.score);
+  const primary = candidates.find(c => c.score >= c.threshold);
+  // Secondary tendencies: confident-ish signals that aren't the primary.
+  const secondary = candidates.filter(c => c !== primary && c.score >= c.threshold * 0.6);
+
+  return { primary, secondary, candidates };
+}
+
+function renderArchetype(mons) {
+  const el = $('#archetype');
+  if (mons.length < 3) { el.innerHTML = ''; return; }
+  const { primary, secondary } = detectArchetype(mons);
+
+  let html;
+  if (primary) {
+    html = `<span class="arch-label">${primary.label}</span><span class="arch-evidence">${primary.evidence}.</span>`;
+  } else {
+    // Fallback: pace tells balance vs bulky offense apart.
+    const entries = mons.map(m => byName.get(m.name).stats);
+    const avgSpe = entries.reduce((s, e) => s + e.spe, 0) / entries.length;
+    const label = avgSpe >= 85 ? 'Bulky Offense / Balance' : 'Balance';
+    html = `<span class="arch-label">${label}</span><span class="arch-evidence">no strong archetype signal — no weather core, Trick Room mode, or dedicated pace detected (abilities and stats only; movesets not considered).</span>`;
+  }
+  if (secondary.length) {
+    html += `<div class="arch-secondary">Secondary tendencies: ${secondary.map(s => `<b>${s.label}</b> (${s.evidence})`).join(' · ')}</div>`;
+  }
+  el.innerHTML = `<div class="arch-box">${html}</div>`;
 }
 
 // Suggest OU/Uber mons (not already on the team) that resist the given type, best BST first.

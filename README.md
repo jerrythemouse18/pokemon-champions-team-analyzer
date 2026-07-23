@@ -28,6 +28,7 @@ python3 -m http.server 8080
 - Team persists in `localStorage` **and** in the URL hash, so you can bookmark or share a team link
 
 ### 2. Team summary
+- **Team archetype detection** — labels your team's playstyle the way competitive players talk about teams: **Rain / Sun / Sand / Snow** (weather setter + abusers + boosted STAB), **Trick Room** (multiple slow, hard-hitting members), **Hyper Offense** (fast heavy hitters, snowball abilities, high team Speed), **Stall / Fat Balance** (bulk + longevity abilities like Regenerator/Unaware), falling back to **Balance** when no specialist signal dominates. Every label shows its evidence, plus secondary tendencies (e.g. "Sand team, with a Trick Room mode"). Detection reads abilities and stats only — movesets aren't in the data (yet).
 - Flags **stacked weaknesses** (any attacking type that hits 3+ of your members super-effectively)
 - Flags **unresisted types** (types nobody on your team resists — every hit lands at least neutral)
 - Suggests high-BST Uber/OU/UUBL partners that patch each stacked weakness
