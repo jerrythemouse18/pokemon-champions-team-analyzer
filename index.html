@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Champions Team Analyzer</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="app-header">
+  <div>
+    <h1>Champions Team Analyzer</h1>
+    <p class="subtitle">Type coverage analysis for Pokémon Champions &middot; data from the <a href="https://www.smogon.com/dex/champions/pokemon/" target="_blank" rel="noopener">Smogon Champions dex</a> (323 Pokémon)</p>
+  </div>
+  <div class="header-actions">
+    <button id="btn-sample" class="btn">Load sample team</button>
+    <button id="btn-clear" class="btn btn-ghost">Clear team</button>
+  </div>
+</header>
+
+<main>
+  <section class="card" id="team-section">
+    <h2>Your team</h2>
+    <p class="hint">Search any of the 323 Pokémon in the Champions dex. Pick an ability where it matters — immunity abilities (Levitate, Water Absorb, Flash Fire…) are factored into the defensive analysis.</p>
+    <div class="team-grid" id="team-grid"></div>
+  </section>
+
+  <section class="card" id="summary-section" hidden>
+    <h2>Team summary</h2>
+    <div id="summary-chips" class="chip-row"></div>
+    <div id="suggestions"></div>
+  </section>
+
+  <section class="card" id="defense-section" hidden>
+    <h2>Defensive matrix</h2>
+    <p class="hint">How hard each attacking type hits each of your Pokémon, ability included. <span class="key"><span class="swatch sw-immune"></span>immune</span> <span class="key"><span class="swatch sw-res2"></span>&frac14;&times;</span> <span class="key"><span class="swatch sw-res"></span>&frac12;&times;</span> <span class="key"><span class="swatch sw-neutral"></span>1&times;</span> <span class="key"><span class="swatch sw-weak"></span>2&times;</span> <span class="key"><span class="swatch sw-weak2"></span>4&times;</span></p>
+    <div class="table-wrap"><table id="defense-table" class="matrix"></table></div>
+  </section>
+
+  <section class="card" id="offense-section" hidden>
+    <h2>Offensive STAB coverage</h2>
+    <p class="hint">Best effectiveness any of your STAB (same-type) attacks achieves against each defending type.</p>
+    <div class="table-wrap"><table id="offense-table" class="matrix"></table></div>
+    <div id="offense-notes"></div>
+  </section>
+
+  <section class="card" id="threats-section" hidden>
+    <h2>Top threats</h2>
+    <p class="hint">Pokémon from the Champions metagame ranked by how badly they match up against your team: how many of your members they hit super-effectively with STAB, plus how many of your members' STABs they resist.</p>
+    <label class="toggle"><input type="checkbox" id="threat-uu"> Include UU tier (default: Uber / OU / UUBL only)</label>
+    <div id="threat-list"></div>
+  </section>
+</main>
+
+<footer class="app-footer">
+  Unofficial fan tool. Pokémon data &copy; Smogon / The Pokémon Company. Type chart: standard Gen&nbsp;6+ (18 types) as used in Pokémon Champions.
+</footer>
+
+<script src="data/pokemon.js"></script>
+<script src="js/typechart.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
