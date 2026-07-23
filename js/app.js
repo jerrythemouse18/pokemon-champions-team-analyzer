@@ -200,12 +200,14 @@ function renderAnalysis() {
   const show = mons.length > 0;
   ['#summary-section', '#defense-section', '#offense-section', '#threats-section']
     .forEach(sel => { $(sel).hidden = !show; });
+  $('#compat-section').hidden = mons.length < 2;
   if (!show) return;
 
   renderDefense(mons);
   renderOffense(mons);
   renderSummary(mons);
   renderThreats(mons);
+  if (mons.length >= 2) renderCompat(mons);
 }
 
 function defenseMult(attackType, mon) {
@@ -327,6 +329,99 @@ function suggestResisters(type, mons) {
 function bst(p) {
   const s = p.stats;
   return s.hp + s.atk + s.def + s.spa + s.spd + s.spe;
+}
+
+// ---------- pair compatibility ----------
+// For a pair (A, B): +1 per type one is weak to and the other resists (covered),
+// -2 per type both are weak to (shared liability).
+function pairSynergy(a, b) {
+  const covered = [];   // { type, weak: name, saver: name }
+  const shared = [];    // types both are weak to
+  for (const atk of TYPES) {
+    const ma = defenseMult(atk, a);
+    const mb = defenseMult(atk, b);
+    if (ma > 1 && mb > 1) shared.push(atk);
+    else if (ma > 1 && mb < 1) covered.push({ type: atk, weak: a.name, saver: b.name });
+    else if (mb > 1 && ma < 1) covered.push({ type: atk, weak: b.name, saver: a.name });
+  }
+  return { score: covered.length - 2 * shared.length, covered, shared };
+}
+
+function compatClass(score) {
+  if (score >= 5) return 'c-res2';
+  if (score >= 2) return 'c-res';
+  if (score >= 0) return 'c-neutral';
+  if (score >= -3) return 'c-weak';
+  return 'c-weak2';
+}
+
+let compatSelection = null; // [i, j] indices into current mons, or null
+
+function renderCompat(mons) {
+  const table = $('#compat-table');
+  const detail = $('#compat-detail');
+
+  // Precompute synergies; track each member's average for the row summary.
+  const syn = mons.map(() => []);
+  for (let i = 0; i < mons.length; i++) {
+    for (let j = i + 1; j < mons.length; j++) {
+      syn[i][j] = pairSynergy(mons[i], mons[j]);
+      syn[j][i] = syn[i][j];
+    }
+  }
+
+  let html = '<thead><tr><th></th>';
+  html += mons.map(m => `<th class="colhead" title="${m.name}">${m.name}</th>`).join('');
+  html += '<th class="colhead">Avg</th></tr></thead><tbody>';
+
+  for (let i = 0; i < mons.length; i++) {
+    html += `<tr><th>${mons[i].name}</th>`;
+    let sum = 0;
+    for (let j = 0; j < mons.length; j++) {
+      if (i === j) { html += '<td class="c-total">—</td>'; continue; }
+      const s = syn[i][j];
+      sum += s.score;
+      const sel = compatSelection && ((compatSelection[0] === i && compatSelection[1] === j) || (compatSelection[0] === j && compatSelection[1] === i));
+      html += `<td class="${compatClass(s.score)} compat-cell${sel ? ' selected' : ''}" data-i="${i}" data-j="${j}" role="button" tabindex="0" title="${mons[i].name} + ${mons[j].name}: ${s.score > 0 ? '+' : ''}${s.score}">${s.score > 0 ? '+' : ''}${s.score}</td>`;
+    }
+    const avg = sum / (mons.length - 1);
+    html += `<td class="c-total">${avg >= 0 ? '+' : ''}${avg.toFixed(1)}</td></tr>`;
+  }
+  html += '</tbody>';
+  table.innerHTML = html;
+
+  const showDetail = (i, j) => {
+    compatSelection = [i, j];
+    const s = syn[i][j];
+    const parts = [];
+    if (s.covered.length) {
+      parts.push('<b>Covered weaknesses:</b> ' + s.covered.map(c =>
+        `${typeBadge(c.type)} (${c.weak} is weak, ${c.saver} resists)`).join(' · '));
+    }
+    if (s.shared.length) {
+      parts.push('<b>Shared weaknesses:</b> ' + s.shared.map(typeBadge).join(' '));
+    }
+    if (!parts.length) parts.push('No overlapping weaknesses or covers — these two are type-independent.');
+    detail.innerHTML = `<p class="compat-breakdown"><b>${mons[i].name} + ${mons[j].name}</b> (score ${s.score > 0 ? '+' : ''}${s.score}): ${parts.join('<br>')}</p>`;
+    table.querySelectorAll('.compat-cell').forEach(td => {
+      const ti = +td.dataset.i, tj = +td.dataset.j;
+      td.classList.toggle('selected', (ti === i && tj === j) || (ti === j && tj === i));
+    });
+  };
+
+  table.querySelectorAll('.compat-cell').forEach(td => {
+    td.addEventListener('click', () => showDetail(+td.dataset.i, +td.dataset.j));
+    td.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); showDetail(+td.dataset.i, +td.dataset.j); }
+    });
+  });
+
+  // Keep breakdown in sync when team changes; drop stale selection.
+  if (compatSelection && (compatSelection[0] >= mons.length || compatSelection[1] >= mons.length)) {
+    compatSelection = null;
+  }
+  if (compatSelection) showDetail(compatSelection[0], compatSelection[1]);
+  else detail.innerHTML = '';
 }
 
 // ---------- threat analysis ----------

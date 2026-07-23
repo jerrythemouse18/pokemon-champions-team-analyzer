@@ -32,13 +32,16 @@ python3 -m http.server 8080
 - Flags **unresisted types** (types nobody on your team resists — every hit lands at least neutral)
 - Suggests high-BST Uber/OU/UUBL partners that patch each stacked weakness
 
-### 3. Defensive matrix
+### 3. Pair compatibility
+A 6×6 synergy matrix scoring every pair of teammates: **+1** for each weakness one member has that the other resists (they cover each other), **−2** for each weakness both share (stacked liability). Click any cell for the exact type-by-type breakdown; the Avg column shows each member's mean synergy with the rest of the team — a quick way to spot the odd one out.
+
+### 4. Defensive matrix
 An 18-row heatmap: every attacking type vs. every team member, with the exact multiplier (0, ¼, ½, 1, 2, 4×) in each cell and a per-type **weak/resist tally**. Ability modifiers included.
 
-### 4. Offensive STAB coverage
+### 5. Offensive STAB coverage
 For every defending type, the best multiplier any of your STAB (same-type attack bonus) types achieves — and a list of types you can't hit super-effectively.
 
-### 5. Top threats
+### 6. Top threats
 Scans the Champions metagame (Uber/OU/UUBL by default, UU toggleable) and ranks Pokémon by threat score:
 
 ```

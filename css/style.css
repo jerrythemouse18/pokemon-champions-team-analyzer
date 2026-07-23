@@ -205,6 +205,23 @@ td.c-total   { background: transparent; color: var(--ink-2); font-weight: 600; }
 .sw-weak    { background: var(--cell-weak); }
 .sw-weak2   { background: var(--cell-weak2); }
 
+/* ---- pair compatibility ---- */
+.compat-cell { cursor: pointer; }
+.compat-cell:hover { outline: 1px solid var(--muted); outline-offset: -1px; }
+.compat-cell.selected { outline: 2px solid var(--ink); outline-offset: -2px; }
+.compat-cell:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.compat-breakdown {
+  margin: 14px 0 0;
+  padding: 12px 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 13.5px;
+  color: var(--ink-2);
+  line-height: 1.9;
+}
+.compat-breakdown b { color: var(--ink); }
+
 /* ---- summary chips ---- */
 .chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
 .chip {
