@@ -2,11 +2,13 @@
 
 A web app for competitive **Pokémon Champions** team building. Pick your 6 Pokémon and instantly see your team's type advantages and disadvantages — defensively, offensively, and against the actual Champions metagame.
 
+**Live app: https://jerrythemouse18.github.io/pokemon-champions-team-analyzer/**
+
 Data source: the [Smogon Champions Strategy Pokedex](https://www.smogon.com/dex/champions/pokemon/) — all **323 Pokémon** in the Champions roster (July 2026), including the Champions-exclusive Mega Evolutions (Mega Garchomp, Mega Feraligatr, Mega Meganium…), regional forms, and Smogon tier placements (Uber / OU / UUBL / UU).
 
 ## Running it
 
-No build step, no dependencies. It's a static site:
+Use the hosted version at the link above, or run it locally. No build step, no dependencies — it's a static site:
 
 ```bash
 # option 1: just open it
