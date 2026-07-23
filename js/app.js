@@ -173,6 +173,9 @@ function typeBadge(t) {
 }
 
 function monAbility(mon) {
+  // Hypothetical candidates with several possible abilities get none applied
+  // (same no-guessing convention as the threat analysis).
+  if (mon._certainAbility === false) return null;
   const p = byName.get(mon.name);
   return p.abilities[mon.ability || 0] || p.abilities[0];
 }
@@ -201,13 +204,14 @@ function renderAnalysis() {
   ['#summary-section', '#defense-section', '#offense-section', '#threats-section']
     .forEach(sel => { $(sel).hidden = !show; });
   $('#compat-section').hidden = mons.length < 2;
+  $('#replace-section').hidden = mons.length < 2;
   if (!show) return;
 
   renderDefense(mons);
   renderOffense(mons);
   renderSummary(mons);
   renderThreats(mons);
-  if (mons.length >= 2) renderCompat(mons);
+  if (mons.length >= 2) { renderCompat(mons); renderReplacement(mons); }
 }
 
 function defenseMult(attackType, mon) {
@@ -424,6 +428,114 @@ function renderCompat(mons) {
   else detail.innerHTML = '';
 }
 
+// ---------- replacement finder ----------
+// A single comparable score for a hypothetical team, built from the same
+// signals the other cards show: offensive coverage, pair synergy, stacked
+// weaknesses, unresisted types.
+function teamMetrics(mons) {
+  let stacked = 0, unresisted = 0, weakTotal = 0;
+  const stackedTypes = [], unresistedTypes = [];
+  for (const atk of TYPES) {
+    let weak = 0, resist = 0;
+    for (const m of mons) {
+      const mult = defenseMult(atk, m);
+      if (mult > 1) weak++;
+      if (mult < 1) resist++;
+    }
+    weakTotal += weak;
+    if (weak >= 3) { stacked += weak - 2; stackedTypes.push(atk); }
+    if (resist === 0 && weak > 0) { unresisted++; unresistedTypes.push(atk); }
+  }
+  const stabs = stabTypes(mons.map(m => ({ name: m.name, ability: m.ability })));
+  let covered = 0;
+  const uncoveredTypes = [];
+  for (const def of TYPES) {
+    let best = 0;
+    for (const atk of stabs) best = Math.max(best, effectiveness(atk, [def], null));
+    if (best >= 2) covered++; else uncoveredTypes.push(def);
+  }
+  let synergy = 0;
+  for (let i = 0; i < mons.length; i++)
+    for (let j = i + 1; j < mons.length; j++)
+      synergy += pairSynergy(mons[i], mons[j]).score;
+
+  const score = covered + synergy * 0.5 - stacked * 2 - unresisted * 1.5 - weakTotal * 0.25;
+  return { score, covered, synergy, stacked, unresisted, stackedTypes, unresistedTypes, uncoveredTypes };
+}
+
+function candidateMon(p) {
+  // Same convention as threat analysis: only apply an ability we can be sure of.
+  return { name: p.name, ability: 0, _certainAbility: p.abilities.length === 1 };
+}
+
+function renderReplacement(mons) {
+  const sel = $('#replace-member');
+  const prev = sel.value;
+  sel.innerHTML = '<option value="">— choose a member —</option>' +
+    mons.map((m, i) => `<option value="${i}">${m.name}</option>`).join('');
+  if (prev !== '' && +prev < mons.length) sel.value = prev;
+  renderReplacementResults(mons);
+}
+
+function renderReplacementResults(mons) {
+  const out = $('#replace-results');
+  const idx = $('#replace-member').value;
+  if (idx === '') { out.innerHTML = ''; return; }
+
+  const outgoing = mons[+idx];
+  const rest = mons.filter((_, i) => i !== +idx);
+  const includeUU = $('#replace-uu').checked;
+  const tiers = includeUU ? ['Uber', 'OU', 'UUBL', 'UU'] : ['Uber', 'OU', 'UUBL'];
+  const picked = new Set(mons.map(m => m.name));
+  const current = teamMetrics(mons);
+
+  const candidates = [];
+  for (const p of POKEMON_DATA) {
+    if (!tiers.includes(p.tier) || picked.has(p.name) || p.tier === 'NFE') continue;
+    const trial = teamMetrics([...rest, candidateMon(p)]);
+    candidates.push({ p, trial, delta: trial.score - current.score });
+  }
+  candidates.sort((a, b) => b.delta - a.delta || bst(b.p) - bst(a.p));
+
+  const top = candidates.slice(0, 8);
+  if (!top.length || top[0].delta <= 0) {
+    out.innerHTML = `<p class="hint">No candidate in the selected tiers improves on ${outgoing.name} for this team's type profile — this slot is already well chosen.</p>`;
+    if (!top.length) return;
+  }
+
+  out.innerHTML = top.map((c, ci) => {
+    const reasons = [];
+    const fixedStacked = current.stackedTypes.filter(t => !c.trial.stackedTypes.includes(t));
+    const fixedUnres = current.unresistedTypes.filter(t => !c.trial.unresistedTypes.includes(t));
+    const newCoverage = current.uncoveredTypes.filter(t => !c.trial.uncoveredTypes.includes(t));
+    if (fixedStacked.length) reasons.push(`unstacks ${fixedStacked.map(typeBadge).join(' ')} weakness`);
+    if (fixedUnres.length) reasons.push(`adds a resist to ${fixedUnres.map(typeBadge).join(' ')}`);
+    if (newCoverage.length) reasons.push(`adds super-effective STAB vs ${newCoverage.map(typeBadge).join(' ')}`);
+    if (c.trial.synergy > current.synergy) reasons.push(`pair synergy ${current.synergy >= 0 ? '+' : ''}${current.synergy} → +${c.trial.synergy}`);
+    if (!reasons.length) reasons.push('fewer total weaknesses across the team');
+    return `
+    <div class="threat">
+      <span class="threat-name">${c.p.name} <span class="mon-tier">${c.p.tier}</span></span>
+      ${c.p.types.map(typeBadge).join(' ')}
+      <span class="threat-detail">${reasons.join(' · ')}</span>
+      <span class="threat-score">team score ${c.delta > 0 ? '+' : ''}${c.delta.toFixed(1)}</span>
+      <button class="btn btn-swap" data-ci="${ci}">Swap in</button>
+    </div>`;
+  }).join('');
+
+  out.querySelectorAll('.btn-swap').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const c = top[+btn.dataset.ci];
+      const slotIdx = team.findIndex(m => m && m.name === outgoing.name);
+      if (slotIdx >= 0) {
+        team[slotIdx] = { name: c.p.name, ability: 0 };
+        $('#replace-member').value = '';
+        renderTeam();
+      }
+    });
+  });
+}
+
 // ---------- threat analysis ----------
 function renderThreats(mons) {
   const includeUU = $('#threat-uu').checked;
@@ -486,6 +598,14 @@ $('#btn-clear').addEventListener('click', () => {
 $('#threat-uu').addEventListener('change', () => {
   const mons = team.filter(Boolean);
   if (mons.length) renderThreats(mons);
+});
+$('#replace-member').addEventListener('change', () => {
+  const mons = team.filter(Boolean);
+  if (mons.length >= 2) renderReplacementResults(mons);
+});
+$('#replace-uu').addEventListener('change', () => {
+  const mons = team.filter(Boolean);
+  if (mons.length >= 2) renderReplacementResults(mons);
 });
 
 renderTeam();

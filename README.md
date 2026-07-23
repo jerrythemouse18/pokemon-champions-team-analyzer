@@ -41,7 +41,10 @@ An 18-row heatmap: every attacking type vs. every team member, with the exact mu
 ### 5. Offensive STAB coverage
 For every defending type, the best multiplier any of your STAB (same-type attack bonus) types achieves — and a list of types you can't hit super-effectively.
 
-### 6. Top threats
+### 6. Replacement finder
+Select any team member and the app scans the whole Champions roster (Uber/OU/UUBL by default, UU toggleable) for Pokémon that would serve the team better in that slot. Each candidate is scored on the change to the **whole team**, not the individual: super-effective STAB coverage gained, pair synergy with the remaining five, stacked weaknesses removed, unresisted types patched. Every suggestion shows *why* it helps ("unstacks Ice weakness", "adds a resist to Ground", …) and has a one-click **Swap in** button.
+
+### 7. Top threats
 Scans the Champions metagame (Uber/OU/UUBL by default, UU toggleable) and ranks Pokémon by threat score:
 
 ```

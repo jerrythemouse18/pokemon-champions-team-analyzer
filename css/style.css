@@ -240,6 +240,18 @@ td.c-total   { background: transparent; color: var(--ink-2); font-weight: 600; }
 #suggestions ul { margin: 6px 0 0; padding-left: 20px; }
 #suggestions li { margin: 3px 0; }
 
+/* ---- replacement finder ---- */
+.replace-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; margin-bottom: 12px; }
+#replace-member {
+  background: var(--page);
+  color: var(--ink);
+  border: 1px solid var(--grid);
+  border-radius: 6px;
+  padding: 7px 10px;
+  font-size: 13px;
+}
+.btn-swap { padding: 4px 10px; font-size: 12px; }
+
 /* ---- threats ---- */
 .toggle { color: var(--ink-2); font-size: 13px; display: inline-flex; gap: 6px; align-items: center; margin-bottom: 12px; cursor: pointer; }
 .threat {

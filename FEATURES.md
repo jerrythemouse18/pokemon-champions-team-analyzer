@@ -16,7 +16,7 @@ The prototype covers team input + type advantage/disadvantage analysis. These ar
 
 | # | Feature | What it adds | Effort |
 |---|---------|--------------|--------|
-| B1 | **Auto-suggest 6th member** | With ≤5 picked, rank all remaining Pokémon by how much they improve your coverage score. | Medium |
+| B1 | ~~**Auto-suggest 6th member**~~ | ✅ Shipped as the **Replacement finder** — select a member and get ranked, explained replacement suggestions with one-click swap. | Done |
 | B2 | **Team score & grade** | A single 0–100 team score (defensive synergy + offensive coverage + speed profile) so you can compare team drafts. | Medium |
 | B3 | **Smogon set integration** | Show recommended competitive sets/roles from Smogon's Champions analyses on each picked Pokémon. | Medium |
 | B4 | **Multiple saved teams** | Name, save, duplicate, and compare several teams side by side. | Medium |

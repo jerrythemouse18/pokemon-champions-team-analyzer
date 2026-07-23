@@ -51,6 +51,16 @@
     <div id="offense-notes"></div>
   </section>
 
+  <section class="card" id="replace-section" hidden>
+    <h2>Replacement finder</h2>
+    <p class="hint">Pick a team member and see which Pokémon would serve this team better in that slot. Candidates are scored on the change to the whole team: offensive coverage, pair synergy, stacked weaknesses, and unresisted types.</p>
+    <div class="replace-controls">
+      <select id="replace-member" aria-label="Team member to replace"></select>
+      <label class="toggle"><input type="checkbox" id="replace-uu"> Include UU tier candidates</label>
+    </div>
+    <div id="replace-results"></div>
+  </section>
+
   <section class="card" id="threats-section" hidden>
     <h2>Top threats</h2>
     <p class="hint">Pokémon from the Champions metagame ranked by how badly they match up against your team: how many of your members they hit super-effectively with STAB, plus how many of your members' STABs they resist.</p>
