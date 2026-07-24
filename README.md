@@ -45,7 +45,18 @@ For every defending type, the best multiplier any of your STAB (same-type attack
 ### 6. Replacement finder
 Select any team member and the app scans the whole Champions roster (Uber/OU/UUBL by default, UU toggleable) for Pokémon that would serve the team better in that slot. Each candidate is scored on the change to the **whole team**, not the individual: super-effective STAB coverage gained, pair synergy with the remaining five, stacked weaknesses removed, unresisted types patched. Every suggestion shows *why* it helps ("unstacks Ice weakness", "adds a resist to Ground", …) and has a one-click **Swap in** button.
 
-### 7. Top threats
+### 7. Showdown import / export
+Paste a team in [Pokémon Showdown](https://pokemonshowdown.com/) export format to load it — items, EVs/IVs, natures, levels, and moves are all kept, shown on each slot, and used by the damage calculator. Export works the same way (one click copies the paste to your clipboard). Nicknames, gender tags, and non-Champions Pokémon in a paste are handled gracefully.
+
+### 8. Damage calculator
+Real damage math via the open-source [@smogon/calc](https://github.com/smogon/damage-calc) engine (the same library behind the official Showdown damage calculator), vendored as a single script so the site stays build-free. Pick an attacker from your team and any defender from the dex:
+
+- Uses the attacker's **imported set** (item, EVs, nature, level, moves) when you've imported a paste; otherwise falls back to standard STAB moves at level 50 with neutral spreads
+- Per-move **damage ranges and KO chances** ("93.8% chance to OHKO")
+- **Singles/Doubles** toggle (doubles spread-damage reduction applied) plus weather and terrain conditions
+- Champions-exclusive Mega Evolutions are fully supported
+
+### 9. Top threats
 Scans the Champions metagame (Uber/OU/UUBL by default, UU toggleable) and ranks Pokémon by threat score:
 
 ```
@@ -70,6 +81,9 @@ index.html          app shell
 css/style.css       dark theme, heatmap colors (diverging blue = resist / red = weak)
 js/typechart.js     18-type chart, type colors, ability modifiers, effectiveness()
 js/app.js           team state, autocomplete, analysis rendering, threat scoring
+js/showdown.js      Showdown paste parser + exporter
+js/damagecalc.js    damage calculator card (wraps the vendored @smogon/calc)
+js/vendor/          @smogon/calc bundled as a single browser script (MIT)
 data/pokemon.js     323-Pokémon roster (names, types, abilities, stats, tiers)
 data/README.md      how the data was extracted and how to refresh it
 ```

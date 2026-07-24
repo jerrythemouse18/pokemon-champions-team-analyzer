@@ -13,12 +13,25 @@
     <p class="subtitle">Type coverage analysis for Pokémon Champions &middot; data from the <a href="https://www.smogon.com/dex/champions/pokemon/" target="_blank" rel="noopener">Smogon Champions dex</a> (323 Pokémon)</p>
   </div>
   <div class="header-actions">
+    <button id="btn-import" class="btn">Import paste</button>
+    <button id="btn-export" class="btn">Export</button>
     <button id="btn-sample" class="btn">Load sample team</button>
     <button id="btn-clear" class="btn btn-ghost">Clear team</button>
   </div>
 </header>
 
 <main>
+  <section class="card" id="import-section" hidden>
+    <h2>Import / export Showdown paste</h2>
+    <p class="hint">Paste a team in Pokémon Showdown export format. Items, EVs/IVs, natures, and moves are kept and used by the damage calculator.</p>
+    <textarea id="import-text" rows="10" spellcheck="false" placeholder="Garchomp-Mega @ Clear Amulet&#10;Ability: Sand Force&#10;Level: 50&#10;EVs: 252 Atk / 4 SpD / 252 Spe&#10;Jolly Nature&#10;- Earthquake&#10;- Dragon Claw&#10;- Rock Slide&#10;- Protect&#10;..."></textarea>
+    <div class="import-actions">
+      <button id="btn-do-import" class="btn">Load team from paste</button>
+      <button id="btn-copy-export" class="btn btn-ghost">Copy current team as paste</button>
+      <span id="import-status" class="hint"></span>
+    </div>
+  </section>
+
   <section class="card" id="team-section">
     <h2>Your team</h2>
     <p class="hint">Search any of the 323 Pokémon in the Champions dex. Pick an ability where it matters — immunity abilities (Levitate, Water Absorb, Flash Fire…) are factored into the defensive analysis.</p>
@@ -62,6 +75,35 @@
     <div id="replace-results"></div>
   </section>
 
+  <section class="card" id="damage-section" hidden>
+    <h2>Damage calculator</h2>
+    <p class="hint">Real damage ranges via the open-source <a href="https://github.com/smogon/damage-calc" target="_blank" rel="noopener">@smogon/calc</a> engine. Uses each member's imported moves, items, EVs and nature when available; otherwise its strongest STAB moves at level 50 with neutral spreads.</p>
+    <div class="dmg-controls">
+      <select id="dmg-attacker" aria-label="Attacking team member"></select>
+      <span class="dmg-vs">vs</span>
+      <span class="dmg-defender-wrap">
+        <input type="text" id="dmg-defender" placeholder="Search defender…" aria-label="Defending Pokémon">
+        <div class="autocomplete" id="dmg-defender-ac" hidden></div>
+      </span>
+      <label class="toggle"><input type="checkbox" id="dmg-doubles" checked> Doubles</label>
+      <select id="dmg-weather" aria-label="Weather">
+        <option value="">No weather</option>
+        <option value="Sun">Sun</option>
+        <option value="Rain">Rain</option>
+        <option value="Sand">Sand</option>
+        <option value="Snow">Snow</option>
+      </select>
+      <select id="dmg-terrain" aria-label="Terrain">
+        <option value="">No terrain</option>
+        <option value="Electric">Electric Terrain</option>
+        <option value="Grassy">Grassy Terrain</option>
+        <option value="Misty">Misty Terrain</option>
+        <option value="Psychic">Psychic Terrain</option>
+      </select>
+    </div>
+    <div id="dmg-results"></div>
+  </section>
+
   <section class="card" id="threats-section" hidden>
     <h2>Top threats</h2>
     <p class="hint">Pokémon from the Champions metagame ranked by how badly they match up against your team: how many of your members they hit super-effectively with STAB, plus how many of your members' STABs they resist.</p>
@@ -76,6 +118,9 @@
 
 <script src="data/pokemon.js"></script>
 <script src="js/typechart.js"></script>
+<script src="js/vendor/smogon-calc.min.js"></script>
+<script src="js/showdown.js"></script>
+<script src="js/damagecalc.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

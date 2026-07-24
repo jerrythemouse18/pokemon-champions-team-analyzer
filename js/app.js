@@ -10,19 +10,27 @@ const teamGrid = $('#team-grid');
 
 // ---------- persistence ----------
 function loadTeam() {
-  // URL hash wins over localStorage so shared links work.
-  const fromHash = decodeHash();
-  if (fromHash) return fromHash;
+  let stored = null;
   try {
     const raw = localStorage.getItem('champions-team');
     if (raw) {
       const t = JSON.parse(raw);
       if (Array.isArray(t) && t.length === SLOTS) {
-        return t.map(m => (m && byName.has(m.name)) ? m : null);
+        stored = t.map(m => (m && byName.has(m.name)) ? m : null);
       }
     }
   } catch (e) { /* ignore corrupt state */ }
-  return Array(SLOTS).fill(null);
+
+  // URL hash wins over localStorage so shared links work — but the hash only
+  // carries name:ability, so if it matches the stored team, prefer stored
+  // (which keeps imported movesets/EVs).
+  const fromHash = decodeHash();
+  if (fromHash) {
+    const sameMons = stored && fromHash.every((m, i) =>
+      (m === null) === (stored[i] === null) && (!m || m.name === stored[i].name));
+    return sameMons ? stored : fromHash;
+  }
+  return stored || Array(SLOTS).fill(null);
 }
 
 function saveTeam() {
@@ -165,6 +173,17 @@ function filledSlot(mon, i) {
   stats.textContent = `HP ${s.hp} / Atk ${s.atk} / Def ${s.def} / SpA ${s.spa} / SpD ${s.spd} / Spe ${s.spe} · BST ${bst}`;
   div.appendChild(stats);
 
+  if (mon.set) {
+    const set = document.createElement('div');
+    set.className = 'mon-set';
+    const bits = [];
+    if (mon.set.item) bits.push(`@ ${mon.set.item}`);
+    if (mon.set.nature) bits.push(mon.set.nature);
+    if (mon.set.moves && mon.set.moves.length) bits.push(mon.set.moves.join(' / '));
+    set.textContent = bits.join(' · ');
+    div.appendChild(set);
+  }
+
   return div;
 }
 
@@ -201,7 +220,7 @@ function multLabel(mult) {
 function renderAnalysis() {
   const mons = team.filter(Boolean);
   const show = mons.length > 0;
-  ['#summary-section', '#defense-section', '#offense-section', '#threats-section']
+  ['#summary-section', '#defense-section', '#offense-section', '#threats-section', '#damage-section']
     .forEach(sel => { $(sel).hidden = !show; });
   $('#compat-section').hidden = mons.length < 2;
   $('#replace-section').hidden = mons.length < 2;
@@ -212,6 +231,7 @@ function renderAnalysis() {
   renderSummary(mons);
   renderArchetype(mons);
   renderThreats(mons);
+  renderDamageCalc(mons);
   if (mons.length >= 2) { renderCompat(mons); renderReplacement(mons); }
 }
 
@@ -734,5 +754,51 @@ $('#replace-uu').addEventListener('change', () => {
   const mons = team.filter(Boolean);
   if (mons.length >= 2) renderReplacementResults(mons);
 });
+
+// ---------- Showdown import/export ----------
+$('#btn-import').addEventListener('click', () => {
+  const sec = $('#import-section');
+  sec.hidden = !sec.hidden;
+  if (!sec.hidden) $('#import-text').focus();
+});
+$('#btn-do-import').addEventListener('click', () => {
+  const status = $('#import-status');
+  const text = $('#import-text').value;
+  if (!text.trim()) { status.textContent = 'Paste a team first.'; return; }
+  const { entries, errors } = parseShowdownTeam(text);
+  if (!entries.length) {
+    status.textContent = errors.length ? errors.join(' ') : 'No Pokémon recognized in that paste.';
+    return;
+  }
+  team = Array(SLOTS).fill(null);
+  entries.forEach((e, i) => { team[i] = { name: e.species, ability: e.ability, set: e.set }; });
+  renderTeam();
+  status.textContent = `Imported ${entries.length} Pokémon.` + (errors.length ? ' ' + errors.join(' ') : '');
+});
+async function copyExport() {
+  const status = $('#import-status');
+  const mons = team.filter(Boolean);
+  if (!mons.length) { status.textContent = 'No team to export.'; return; }
+  const text = exportShowdownTeam(team);
+  $('#import-text').value = text;
+  try {
+    await navigator.clipboard.writeText(text);
+    status.textContent = 'Copied to clipboard.';
+  } catch (e) {
+    status.textContent = 'Clipboard unavailable — paste is in the box above.';
+  }
+}
+$('#btn-copy-export').addEventListener('click', copyExport);
+$('#btn-export').addEventListener('click', () => {
+  $('#import-section').hidden = false;
+  copyExport();
+});
+
+// ---------- damage calculator events ----------
+$('#dmg-attacker').addEventListener('change', () => renderDamageResults(team.filter(Boolean)));
+['#dmg-doubles', '#dmg-weather', '#dmg-terrain'].forEach(sel => {
+  $(sel).addEventListener('change', () => renderDamageResults(team.filter(Boolean)));
+});
+attachDefenderPicker();
 
 renderTeam();
