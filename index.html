@@ -34,7 +34,7 @@
 
   <section class="card" id="team-section">
     <h2>Your team</h2>
-    <p class="hint">Search any of the 323 Pokémon in the Champions dex. Pick an ability where it matters — immunity abilities (Levitate, Water Absorb, Flash Fire…) are factored into the defensive analysis.</p>
+    <p class="hint">Search any of the 323 Pokémon in the Champions dex. Each pick auto-fills its <b>most common doubles set</b> (moves, item, spread) from Champions VGC ladder usage — click a slot to edit anything.</p>
     <div class="team-grid" id="team-grid"></div>
   </section>
 
@@ -59,8 +59,8 @@
   </section>
 
   <section class="card" id="offense-section" hidden>
-    <h2>Offensive STAB coverage</h2>
-    <p class="hint">Best effectiveness any of your STAB (same-type) attacks achieves against each defending type.</p>
+    <h2>Offensive coverage</h2>
+    <p class="hint">Best effectiveness your team's actual damaging moves achieve against each defending type (hover a cell to see which move). Members without move data count as STAB only.</p>
     <div class="table-wrap"><table id="offense-table" class="matrix"></table></div>
     <div id="offense-notes"></div>
   </section>
@@ -77,7 +77,7 @@
 
   <section class="card" id="damage-section" hidden>
     <h2>Damage calculator</h2>
-    <p class="hint">Real damage ranges via the open-source <a href="https://github.com/smogon/damage-calc" target="_blank" rel="noopener">@smogon/calc</a> engine. Uses each member's imported moves, items, EVs and nature when available; otherwise its strongest STAB moves at level 50 with neutral spreads.</p>
+    <p class="hint">Real damage ranges via the open-source <a href="https://github.com/smogon/damage-calc" target="_blank" rel="noopener">@smogon/calc</a> engine. Uses each member's saved moves, items, EVs and nature; defenders get their most common ladder spread, so ranges reflect what you'd actually meet.</p>
     <div class="dmg-controls">
       <select id="dmg-attacker" aria-label="Attacking team member"></select>
       <span class="dmg-vs">vs</span>
@@ -117,7 +117,9 @@
 </footer>
 
 <script src="data/pokemon.js"></script>
+<script src="data/movesets.js"></script>
 <script src="js/typechart.js"></script>
+<script src="js/movesets.js"></script>
 <script src="js/vendor/smogon-calc.min.js"></script>
 <script src="js/showdown.js"></script>
 <script src="js/damagecalc.js"></script>

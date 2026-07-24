@@ -48,7 +48,11 @@ function decodeHash() {
     if (!p) return;
     const [name, ab] = p.split(':');
     const decoded = decodeURIComponent(name);
-    if (byName.has(decoded)) t[i] = { name: decoded, ability: parseInt(ab, 10) || 0 };
+    if (byName.has(decoded)) {
+      // Hash carries only name:ability; fill in the default doubles set.
+      t[i] = newTeamMember(decoded);
+      if (ab !== undefined) t[i].ability = parseInt(ab, 10) || 0;
+    }
   });
   return t.some(Boolean) ? t : null;
 }
@@ -105,7 +109,7 @@ function attachAutocomplete(input, ac, slotIdx) {
   function pick(idx) {
     const p = matches[idx];
     if (!p) return;
-    team[slotIdx] = { name: p.name, ability: 0 };
+    team[slotIdx] = newTeamMember(p.name);
     renderTeam();
   }
 
@@ -286,31 +290,63 @@ function stabTypes(mons) {
   return [...set];
 }
 
+// Attacking types the team actually carries: each member's damaging moves
+// when it has a set, otherwise its STAB types. Tracks which members lack
+// move data so the note can say what the row is based on.
+function teamAttackTypes(mons) {
+  const types = new Map(); // type -> Set of "mon: source"
+  let stabFallbacks = 0;
+  for (const m of mons) {
+    const moves = memberDamagingMoves(m);
+    if (moves) {
+      for (const mv of moves) {
+        if (!types.has(mv.type)) types.set(mv.type, new Set());
+        types.get(mv.type).add(`${m.name}: ${mv.name}`);
+      }
+    } else {
+      stabFallbacks++;
+      for (const t of byName.get(m.name).types) {
+        if (!types.has(t)) types.set(t, new Set());
+        types.get(t).add(`${m.name}: STAB`);
+      }
+    }
+  }
+  return { types, stabFallbacks };
+}
+
 function renderOffense(mons) {
-  const stabs = stabTypes(mons);
+  const { types: atkTypes, stabFallbacks } = teamAttackTypes(mons);
   const table = $('#offense-table');
 
   let html = '<thead><tr><th>Defender →</th>';
   html += TYPES.map(t => `<th class="colhead">${t.slice(0, 3)}</th>`).join('');
-  html += '</tr></thead><tbody><tr><th>Best STAB</th>';
+  html += '</tr></thead><tbody><tr><th>Best move</th>';
 
   const notCovered = [];
   for (const def of TYPES) {
-    let best = 0;
-    for (const atk of stabs) best = Math.max(best, effectiveness(atk, [def], null));
+    let best = 0, bestSrc = '';
+    for (const [atk, sources] of atkTypes) {
+      const mult = effectiveness(atk, [def], null);
+      if (mult > best) { best = mult; bestSrc = [...sources][0]; }
+    }
     if (best <= 1) notCovered.push({ type: def, best });
-    html += `<td class="${best >= 2 ? 'c-res2' : best === 1 ? 'c-neutral' : 'c-weak2'}" title="Best STAB vs ${def}: ${best}×">${multLabel(best)}</td>`;
+    html += `<td class="${best >= 2 ? 'c-res2' : best === 1 ? 'c-neutral' : 'c-weak2'}" title="Best vs ${def}: ${best}× (${bestSrc || 'none'})">${multLabel(best)}</td>`;
   }
   html += '</tr></tbody>';
   table.innerHTML = html;
 
   const notes = $('#offense-notes');
+  const basis = stabFallbacks === 0
+    ? 'Based on your members’ actual damaging moves.'
+    : stabFallbacks === mons.length
+      ? 'Based on STAB types only (no move data on this team).'
+      : `Based on actual moves; ${stabFallbacks} member${stabFallbacks > 1 ? 's' : ''} without move data counted as STAB only.`;
   if (notCovered.length) {
-    notes.innerHTML = 'No super-effective STAB against: ' +
+    notes.innerHTML = `${basis} No super-effective hit against: ` +
       notCovered.map(n => typeBadge(n.type)).join(' ') +
-      '. Consider coverage moves or a teammate of a complementary type.';
+      '. Consider a coverage move (edit a set) or a teammate of a complementary type.';
   } else {
-    notes.innerHTML = 'Your STAB attacks hit every type super-effectively — excellent offensive coverage.';
+    notes.innerHTML = `${basis} Your team hits every type super-effectively — excellent offensive coverage.`;
   }
 }
 
@@ -693,7 +729,7 @@ function renderReplacementResults(mons) {
       const c = top[+btn.dataset.ci];
       const slotIdx = team.findIndex(m => m && m.name === outgoing.name);
       if (slotIdx >= 0) {
-        team[slotIdx] = { name: c.p.name, ability: 0 };
+        team[slotIdx] = newTeamMember(c.p.name);
         $('#replace-member').value = '';
         renderTeam();
       }
@@ -753,7 +789,7 @@ function renderThreats(mons) {
 const SAMPLE_TEAM = ['Gholdengo', 'Garchomp-Mega', 'Gyarados-Mega', 'Rotom-Wash', 'Kommo-o', 'Clefable-Mega'];
 
 $('#btn-sample').addEventListener('click', () => {
-  team = SAMPLE_TEAM.map(n => byName.has(n) ? { name: n, ability: 0 } : null);
+  team = SAMPLE_TEAM.map(n => byName.has(n) ? newTeamMember(n) : null);
   renderTeam();
 });
 $('#btn-clear').addEventListener('click', () => {

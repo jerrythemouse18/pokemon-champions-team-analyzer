@@ -6,7 +6,7 @@ The prototype covers team input + type advantage/disadvantage analysis. These ar
 
 | # | Feature | What it adds | Effort |
 |---|---------|--------------|--------|
-| A1 | **Movepool-aware coverage** | Pull each Pokémon's actual learnset from Smogon so offense/threat analysis uses real coverage moves, not just STAB. Biggest single accuracy upgrade. | Large |
+| A1 | ~~**Movepool-aware coverage**~~ | ✅ Shipped — usage-stats movesets auto-fill on selection; offensive coverage and the damage calc use real moves. | Done |
 | A2 | ~~**Damage calculator**~~ | ✅ Shipped — real ranges + KO chances via the vendored `@smogon/calc` engine, with doubles/weather/terrain toggles. Uses imported sets when available. | Done |
 | A3 | **Speed tiers view** | Sort your team + the meta by Speed stat; show who you outspeed at common benchmarks (max speed, neutral, uninvested). | Small |
 | A4 | **Threat matchup detail** | Click a threat to see exactly which of your members it beats/loses to and with what multipliers. | Small |
@@ -42,4 +42,4 @@ The prototype covers team input + type advantage/disadvantage analysis. These ar
 
 ## My recommendation for the next iteration
 
-**A4 + C1** — threat detail drill-down and sprites. After that, **A1 (movepool data)** is the big unlock for analysis accuracy (it would also replace the damage calculator's generic-STAB fallback with real learnsets), and the champteams.gg-inspired **team-preview battle helper** (paste the opponent's 6, get pick suggestions + a KO matrix) is now within reach since the calc engine is in place.
+**A4 + C1** — threat detail drill-down and sprites. After that, the champteams.gg-inspired **team-preview battle helper** (paste the opponent's 6, get pick suggestions + a KO matrix) is now within reach since the calc engine is in place.

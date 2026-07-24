@@ -250,6 +250,28 @@ td.c-total   { background: transparent; color: var(--ink-2); font-weight: 600; }
 }
 .arch-secondary b { color: var(--ink-2); }
 
+/* ---- set editor: common-move chips ---- */
+.se-common { margin-top: 10px; }
+.se-common-title { color: var(--muted); font-size: 12px; margin-bottom: 6px; }
+.se-common-src { color: var(--muted); font-weight: 400; }
+.se-common-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.se-move-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface-2);
+  color: var(--ink-2);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.se-move-chip:hover { border-color: var(--muted); }
+.se-move-chip.picked { border-color: var(--accent); color: var(--ink); background: rgba(57, 135, 229, 0.15); }
+.se-move-chip .se-pct { color: var(--muted); font-variant-numeric: tabular-nums; }
+.se-move-chip .type-badge { font-size: 10px; padding: 1px 6px; }
+
 /* ---- summary chips ---- */
 .chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
 .chip {
@@ -345,6 +367,7 @@ td.c-total   { background: transparent; color: var(--ink-2); font-weight: 600; }
 }
 .edit-set:hover { color: var(--ink); border-color: var(--muted); }
 
+#set-editor-overlay[hidden] { display: none; }
 #set-editor-overlay {
   position: fixed;
   inset: 0;

@@ -3,7 +3,9 @@
 // Showdown import), so the damage calculator and export pick it up unchanged.
 
 const EDITOR_STATS = ['hp', 'atk', 'def', 'spa', 'spd', 'spe'];
-const MAX_EV_TOTAL = 508;
+// Champions budgets 66 stat units (= 528 EV-equivalents at ×8), more than the
+// mainline 508. Usage-stat spreads convert to up to 520 after per-stat caps.
+const MAX_EV_TOTAL = 528;
 
 let editorSlot = null; // team index being edited, or null
 
@@ -38,6 +40,10 @@ function _editorEl() {
       <div class="se-ev-total"></div>
       <div class="se-moves">
         ${[0, 1, 2, 3].map(i => `<input class="se-move" data-mi="${i}" list="se-moves-list" placeholder="Move ${i + 1}">`).join('')}
+      </div>
+      <div class="se-common" hidden>
+        <div class="se-common-title">Most common doubles moves <span class="se-common-src"></span></div>
+        <div class="se-common-list"></div>
       </div>
       <div class="se-actions">
         <button class="btn se-save">Save</button>
@@ -127,10 +133,54 @@ function openSetEditor(slotIdx) {
     inp.value = (set.moves && set.moves[+inp.dataset.mi]) || '';
   });
 
+  renderCommonMoves(overlay, mon.name);
+
   overlay.querySelector('.se-error').textContent = '';
   editorSlot = slotIdx;
   overlay.hidden = false;
   updateEditorStats();
+}
+
+// Usage-ranked move chips: click to fill the first empty move slot (or
+// replace the last slot when full); a filled move's chip removes it again.
+function renderCommonMoves(overlay, name) {
+  const box = overlay.querySelector('.se-common');
+  const list = overlay.querySelector('.se-common-list');
+  const ms = movesetFor(name);
+  if (!ms) { box.hidden = true; return; }
+
+  overlay.querySelector('.se-common-src').textContent =
+    ms.source === 'vgc' ? `(Champions VGC ladder, ${ms.usage}% usage)` : '(4v4 doubles UU ladder)';
+
+  const moveInputs = () => [...overlay.querySelectorAll('.se-move')];
+  const chosen = () => moveInputs().map(i => i.value.trim()).filter(Boolean);
+
+  const redraw = () => {
+    const current = chosen();
+    list.innerHTML = '';
+    for (const m of ms.moves) {
+      const meta = typeof MOVE_META !== 'undefined' ? MOVE_META[m.name] : null;
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'se-move-chip' + (current.includes(m.name) ? ' picked' : '');
+      chip.innerHTML = `${meta ? `<span class="type-badge" style="background:${TYPE_COLORS[meta.type]}">${meta.type}</span> ` : ''}${m.name} <span class="se-pct">${m.pct}%</span>`;
+      chip.addEventListener('click', () => {
+        const inputs = moveInputs();
+        const existing = inputs.find(i => i.value.trim() === m.name);
+        if (existing) { existing.value = ''; }
+        else {
+          const empty = inputs.find(i => !i.value.trim());
+          (empty || inputs[inputs.length - 1]).value = m.name;
+        }
+        redraw();
+      });
+      list.appendChild(chip);
+    }
+  };
+
+  moveInputs().forEach(inp => { inp.oninput = redraw; });
+  redraw();
+  box.hidden = false;
 }
 
 function closeSetEditor() {

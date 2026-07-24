@@ -33,9 +33,8 @@ function toCalcPokemon(mon, dexEntry) {
   return new CALC.Pokemon(CALC_GEN, 'Mew', opts);
 }
 
-// Default moves when a member has no imported set: a standard, widely-learnable
-// STAB move per type (we have no learnset data, so signature moves from a raw
-// dex scan would often be unlearnable — a curated table can't mislead as badly).
+// Last-resort default moves when a member has neither a set nor usage data:
+// a standard, widely-learnable STAB move per type.
 const STANDARD_STAB = {
   Normal:   { phys: 'Body Slam',       spec: 'Hyper Voice' },
   Fire:     { phys: 'Flare Blitz',     spec: 'Flamethrower' },
@@ -58,6 +57,9 @@ const STANDARD_STAB = {
 };
 
 function defaultMoves(dexEntry) {
+  // Prefer real usage data: this mon's most common doubles moves.
+  const ms = typeof movesetFor === 'function' && movesetFor(dexEntry.name);
+  if (ms) return ms.moves.slice(0, 4).map(m => m.name);
   const physical = dexEntry.stats.atk >= dexEntry.stats.spa;
   return dexEntry.types
     .map(t => STANDARD_STAB[t] && STANDARD_STAB[t][physical ? 'phys' : 'spec'])
@@ -90,7 +92,10 @@ function renderDamageResults(mons) {
   const defDex = dmgDefender;
 
   const attacker = toCalcPokemon(mon, atkDex);
-  const defender = toCalcPokemon({ name: defDex.name, ability: 0 }, defDex);
+  // Defender gets its most common ladder spread/item when known, so the
+  // percentages reflect what you'd actually meet.
+  const defSet = typeof defaultSet === 'function' ? defaultSet(defDex.name) : null;
+  const defender = toCalcPokemon({ name: defDex.name, ability: 0, set: defSet || undefined }, defDex);
 
   const field = new CALC.Field({
     gameType: document.querySelector('#dmg-doubles').checked ? 'Doubles' : 'Singles',
@@ -123,7 +128,7 @@ function renderDamageResults(mons) {
   rows.sort((a, b) => (b.hi || 0) - (a.hi || 0));
 
   out.innerHTML =
-    (usingDefaults ? '<p class="hint">No imported moveset for this member — showing its strongest STAB moves. Import a Showdown paste for exact sets.</p>' : '') +
+    (usingDefaults ? '<p class="hint">No saved moveset for this member — showing its most common ladder moves (or generic STAB when unranked). Click the team slot to set exact moves.</p>' : '') +
     rows.map(r => {
       if (r.status) return `<div class="threat"><span class="threat-name">${r.name}</span><span class="threat-detail">status move — no damage</span></div>`;
       if (r.error) return `<div class="threat"><span class="threat-name">${r.name}</span><span class="threat-detail">move not recognized by the calculator</span></div>`;
