@@ -204,6 +204,17 @@ function filledSlot(mon, i) {
     if (mon.set.moves && mon.set.moves.length) bits.push(mon.set.moves.join(' / '));
     set.textContent = bits.join(' · ');
     div.appendChild(set);
+
+    const illegal = illegalMoves(mon);
+    if (illegal.length) {
+      const warn = document.createElement('button');
+      warn.className = 'mon-illegal';
+      warn.title = `Not learnable in Champions: ${illegal.join(', ')} — click to fix`;
+      warn.setAttribute('aria-label', `${p.name} has illegal moves: ${illegal.join(', ')}. Open set editor to fix.`);
+      warn.innerHTML = `⚠ can't learn ${illegal.join(', ')}`;
+      warn.addEventListener('click', () => openSetEditor(i));
+      div.appendChild(warn);
+    }
   }
 
   return div;

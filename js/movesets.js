@@ -50,6 +50,16 @@ function learnsetFor(name) {
   return LEARNSETS[(typeof LEARNSET_ALIASES !== 'undefined' && LEARNSET_ALIASES[name]) || name] || null;
 }
 
+// Moves in a member's saved set that aren't in its Champions learnset.
+// Empty when everything is legal or when there's no learnset/set data.
+function illegalMoves(mon) {
+  const moves = mon.set && mon.set.moves;
+  const legal = moves && moves.length ? learnsetFor(mon.name) : null;
+  if (!legal) return [];
+  const canon = new Set(legal.map(mv => mv.toLowerCase()));
+  return moves.filter(mv => !canon.has(mv.toLowerCase()));
+}
+
 // Damaging moves a member actually has (for coverage analysis).
 // Falls back to null when the member has no move data.
 function memberDamagingMoves(mon) {
