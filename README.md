@@ -45,10 +45,13 @@ For every defending type, the best multiplier any of your STAB (same-type attack
 ### 6. Replacement finder
 Select any team member and the app scans the whole Champions roster (Uber/OU/UUBL by default, UU toggleable) for Pokémon that would serve the team better in that slot. Each candidate is scored on the change to the **whole team**, not the individual: super-effective STAB coverage gained, pair synergy with the remaining five, stacked weaknesses removed, unresisted types patched. Every suggestion shows *why* it helps ("unstacks Ice weakness", "adds a resist to Ground", …) and has a one-click **Swap in** button.
 
-### 7. Showdown import / export
+### 7. Set editor
+Click any filled team slot (or its **Edit set** button) to open a full set editor: ability, item and nature (autocompleted from the calc's dex), level, per-stat EVs and IVs with a live **computed-stat row** (nature boosts/drops color-coded, EV budget validated against the 508 cap), and four move slots with autocomplete over all 941 moves. Unknown moves and items are rejected on save. Saved sets show on the slot card, persist with the team, feed the damage calculator, and round-trip through Showdown export.
+
+### 8. Showdown import / export
 Paste a team in [Pokémon Showdown](https://pokemonshowdown.com/) export format to load it — items, EVs/IVs, natures, levels, and moves are all kept, shown on each slot, and used by the damage calculator. Export works the same way (one click copies the paste to your clipboard). Nicknames, gender tags, and non-Champions Pokémon in a paste are handled gracefully.
 
-### 8. Damage calculator
+### 9. Damage calculator
 Real damage math via the open-source [@smogon/calc](https://github.com/smogon/damage-calc) engine (the same library behind the official Showdown damage calculator), vendored as a single script so the site stays build-free. Pick an attacker from your team and any defender from the dex:
 
 - Uses the attacker's **imported set** (item, EVs, nature, level, moves) when you've imported a paste; otherwise falls back to standard STAB moves at level 50 with neutral spreads
@@ -56,7 +59,7 @@ Real damage math via the open-source [@smogon/calc](https://github.com/smogon/da
 - **Singles/Doubles** toggle (doubles spread-damage reduction applied) plus weather and terrain conditions
 - Champions-exclusive Mega Evolutions are fully supported
 
-### 9. Top threats
+### 10. Top threats
 Scans the Champions metagame (Uber/OU/UUBL by default, UU toggleable) and ranks Pokémon by threat score:
 
 ```
@@ -82,6 +85,7 @@ css/style.css       dark theme, heatmap colors (diverging blue = resist / red = 
 js/typechart.js     18-type chart, type colors, ability modifiers, effectiveness()
 js/app.js           team state, autocomplete, analysis rendering, threat scoring
 js/showdown.js      Showdown paste parser + exporter
+js/seteditor.js     per-Pokémon set editor modal (ability/item/nature/EVs/moves)
 js/damagecalc.js    damage calculator card (wraps the vendored @smogon/calc)
 js/vendor/          @smogon/calc bundled as a single browser script (MIT)
 data/pokemon.js     323-Pokémon roster (names, types, abilities, stats, tiers)

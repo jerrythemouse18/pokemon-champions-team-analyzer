@@ -127,7 +127,13 @@ function attachAutocomplete(input, ac, slotIdx) {
 function filledSlot(mon, i) {
   const p = byName.get(mon.name);
   const div = document.createElement('div');
-  div.className = 'slot';
+  div.className = 'slot slot-filled';
+  div.title = 'Click to edit ability, item, nature, EVs, and moves';
+  div.addEventListener('click', e => {
+    // Interactive children (remove, ability select) keep their own behavior.
+    if (e.target.closest('button, select, input, option')) return;
+    openSetEditor(i);
+  });
 
   const rm = document.createElement('button');
   rm.className = 'remove';
@@ -136,6 +142,13 @@ function filledSlot(mon, i) {
   rm.textContent = '×';
   rm.addEventListener('click', () => { team[i] = null; renderTeam(); });
   div.appendChild(rm);
+
+  const edit = document.createElement('button');
+  edit.className = 'edit-set';
+  edit.setAttribute('aria-label', `Edit set for ${p.name}`);
+  edit.textContent = 'Edit set';
+  edit.addEventListener('click', () => openSetEditor(i));
+  div.appendChild(edit);
 
   const name = document.createElement('div');
   name.className = 'mon-name';
@@ -157,7 +170,12 @@ function filledSlot(mon, i) {
       if (ai === (mon.ability || 0)) opt.selected = true;
       sel.appendChild(opt);
     });
-    sel.addEventListener('change', () => { team[i].ability = parseInt(sel.value, 10); renderTeam(); });
+    sel.addEventListener('change', () => {
+      team[i].ability = parseInt(sel.value, 10);
+      // Keep a saved set's ability name in sync with the quick dropdown.
+      if (team[i].set) team[i].set.ability = p.abilities[team[i].ability] || p.abilities[0];
+      renderTeam();
+    });
     div.appendChild(sel);
   } else {
     const ab = document.createElement('div');

@@ -329,6 +329,106 @@ td.c-total   { background: transparent; color: var(--ink-2); font-weight: 600; }
   line-height: 1.6;
 }
 
+/* ---- set editor ---- */
+.slot-filled { cursor: pointer; }
+.slot-filled:hover { border-color: var(--muted); }
+.edit-set {
+  position: absolute;
+  top: 8px; right: 30px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--muted);
+  font-size: 10px;
+  cursor: pointer;
+  padding: 2px 7px;
+}
+.edit-set:hover { color: var(--ink); border-color: var(--muted); }
+
+#set-editor-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 40px 16px;
+  overflow-y: auto;
+}
+.set-editor {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px 22px;
+  width: 100%;
+  max-width: 560px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6);
+}
+.se-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.se-title { font-weight: 600; font-size: 16px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.se-close { position: static; }
+
+.se-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 14px;
+  margin-bottom: 14px;
+}
+.se-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--ink-2);
+}
+.se-grid select, .se-grid input,
+.se-moves input {
+  background: var(--page);
+  color: var(--ink);
+  border: 1px solid var(--grid);
+  border-radius: 6px;
+  padding: 7px 10px;
+  font-size: 13px;
+  width: 100%;
+}
+.se-grid select:focus, .se-grid input:focus, .se-moves input:focus,
+.se-stats input:focus { outline: none; border-color: var(--accent); }
+
+table.se-stats { width: 100%; border-collapse: collapse; font-size: 12px; }
+.se-stats th {
+  color: var(--ink-2);
+  font-weight: 500;
+  text-align: center;
+  padding: 4px;
+}
+.se-stats tbody th { text-align: left; }
+.se-stats td { text-align: center; padding: 3px 2px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.se-stats input {
+  width: 56px;
+  background: var(--page);
+  color: var(--ink);
+  border: 1px solid var(--grid);
+  border-radius: 5px;
+  padding: 4px 4px;
+  font-size: 12px;
+  text-align: center;
+}
+.se-final td { color: var(--ink); font-weight: 600; }
+td.se-plus { color: #e88484; }
+td.se-minus { color: #7fb2ee; }
+.se-ev-total { margin: 6px 0 12px; font-size: 12px; color: var(--muted); }
+.se-ev-total.over { color: #e88484; font-weight: 600; }
+
+.se-moves {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.se-actions { display: flex; align-items: center; gap: 10px; }
+.se-actions .hint { margin: 0; color: #e88484; }
+
 /* ---- damage calculator ---- */
 .dmg-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 14px; }
 .dmg-controls select {
