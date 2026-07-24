@@ -43,6 +43,13 @@ function newTeamMember(name) {
   };
 }
 
+// Legal moves for a Pokémon (Megas/cosmetic forms resolve to their base form).
+// Null when learnset data is unavailable.
+function learnsetFor(name) {
+  if (typeof LEARNSETS === 'undefined') return null;
+  return LEARNSETS[(typeof LEARNSET_ALIASES !== 'undefined' && LEARNSET_ALIASES[name]) || name] || null;
+}
+
 // Damaging moves a member actually has (for coverage analysis).
 // Falls back to null when the member has no move data.
 function memberDamagingMoves(mon) {

@@ -61,9 +61,9 @@ function _editorEl() {
     for (const it of gen.items) items.appendChild(new Option(it.name));
     document.body.appendChild(items);
 
+    // Move datalist is per-Pokémon (the mon's legal learnset) — filled in openSetEditor.
     const moves = document.createElement('datalist');
     moves.id = 'se-moves-list';
-    for (const mv of gen.moves) { if (mv.name !== '(No Move)') moves.appendChild(new Option(mv.name)); }
     document.body.appendChild(moves);
 
     const natSel = overlay.querySelector('.se-nature');
@@ -132,6 +132,23 @@ function openSetEditor(slotIdx) {
   overlay.querySelectorAll('.se-move').forEach(inp => {
     inp.value = (set.moves && set.moves[+inp.dataset.mi]) || '';
   });
+
+  // Move suggestions = this mon's legal learnset, sorted with damaging moves'
+  // type visible via the common-moves chips below. Fallback: whole calc dex.
+  let movesList = document.querySelector('#se-moves-list');
+  if (!movesList) {
+    movesList = document.createElement('datalist');
+    movesList.id = 'se-moves-list';
+    document.body.appendChild(movesList);
+  }
+  movesList.innerHTML = '';
+  const legal = learnsetFor(mon.name);
+  if (legal) {
+    for (const mv of legal) movesList.appendChild(new Option(mv));
+  } else if (window.SmogonCalc) {
+    const gen = window.SmogonCalc.Generations.get(9);
+    for (const mv of gen.moves) { if (mv.name !== '(No Move)') movesList.appendChild(new Option(mv.name)); }
+  }
 
   renderCommonMoves(overlay, mon.name);
 
@@ -256,6 +273,23 @@ function saveSetEditor() {
     if (bad.length) { err.textContent = `Unknown move: ${bad.join(', ')}.`; return; }
     if (r.item && !gen.items.get(window.SmogonCalc.toID(r.item))) {
       err.textContent = `Unknown item: ${r.item}.`; return;
+    }
+  }
+
+  // Legality: the move must be in this Pokémon's Champions learnset.
+  // Case-insensitive match, and the canonical spelling is saved.
+  const legal = learnsetFor(mon.name);
+  if (legal) {
+    const canon = new Map(legal.map(mv => [mv.toLowerCase(), mv]));
+    const illegal = [];
+    r.moves = r.moves.map(mv => {
+      const c = canon.get(mv.toLowerCase());
+      if (!c) illegal.push(mv);
+      return c || mv;
+    });
+    if (illegal.length) {
+      err.textContent = `${p.name} can't learn: ${illegal.join(', ')}.`;
+      return;
     }
   }
 

@@ -56,6 +56,15 @@ function parseShowdownTeam(text) {
       const i = mon.abilities.findIndex(a => a.toLowerCase() === set.ability.toLowerCase());
       if (i >= 0) { abilityIdx = i; set.ability = mon.abilities[i]; }
     }
+
+    // Legality warning (non-blocking): flag moves outside the Champions learnset.
+    const legal = typeof learnsetFor === 'function' && learnsetFor(mon.name);
+    if (legal) {
+      const canon = new Map(legal.map(mv => [mv.toLowerCase(), mv]));
+      set.moves = set.moves.map(mv => canon.get(mv.toLowerCase()) || mv);
+      const illegal = set.moves.filter(mv => !canon.has(mv.toLowerCase()));
+      if (illegal.length) errors.push(`${mon.name} can't learn ${illegal.join(', ')} in Champions — imported anyway; edit the set to fix.`);
+    }
     entries.push({ species: mon.name, ability: abilityIdx, set });
   }
   return { entries, errors };
