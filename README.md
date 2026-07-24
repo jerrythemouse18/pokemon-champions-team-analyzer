@@ -61,7 +61,10 @@ Real damage math via the open-source [@smogon/calc](https://github.com/smogon/da
 - **Singles/Doubles** toggle (doubles spread-damage reduction applied) plus weather and terrain conditions
 - Champions-exclusive Mega Evolutions are fully supported
 
-### 10. Top threats
+### 10. Best targets
+The mirror of Top threats: scans the metagame and ranks Pokémon by how hard your team's **actual saved moves** hit them — who is weak to your team. Shows how many members land a super-effective hit, the single hardest hit and which move delivers it ("Garchomp-Mega's Earthquake, 4×"), and whether the target threatens you back ("safe matchup" when it doesn't). Members without saved moves count with their STAB types; a target's defensive ability is applied when unambiguous.
+
+### 11. Top threats
 Scans the Champions metagame (Uber/OU/UUBL by default, UU toggleable) and ranks Pokémon by threat score:
 
 ```

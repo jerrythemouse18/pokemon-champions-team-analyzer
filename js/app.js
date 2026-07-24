@@ -253,7 +253,7 @@ function multLabel(mult) {
 function renderAnalysis() {
   const mons = team.filter(Boolean);
   const show = mons.length > 0;
-  ['#summary-section', '#defense-section', '#offense-section', '#threats-section', '#damage-section']
+  ['#summary-section', '#defense-section', '#offense-section', '#threats-section', '#targets-section', '#damage-section']
     .forEach(sel => { $(sel).hidden = !show; });
   $('#compat-section').hidden = mons.length < 2;
   $('#replace-section').hidden = mons.length < 2;
@@ -264,6 +264,7 @@ function renderAnalysis() {
   renderSummary(mons);
   renderArchetype(mons);
   renderThreats(mons);
+  renderTargets(mons);
   renderDamageCalc(mons);
   if (mons.length >= 2) { renderCompat(mons); renderReplacement(mons); }
 }
@@ -748,6 +749,71 @@ function renderReplacementResults(mons) {
   });
 }
 
+// ---------- best targets (who is weak to our moves) ----------
+// For each meta mon: how many of our members hit it super-effectively with
+// their actual damaging moves (STAB-type fallback for members without sets),
+// what the single hardest hit is, and whether it threatens us back.
+function renderTargets(mons) {
+  const includeUU = $('#target-uu').checked;
+  const tiers = includeUU ? ['Uber', 'OU', 'UUBL', 'UU'] : ['Uber', 'OU', 'UUBL'];
+  const picked = new Set(mons.map(m => m.name));
+
+  // Precompute each member's attack options once.
+  const attackers = mons.map(m => {
+    const moves = memberDamagingMoves(m);
+    return {
+      name: m.name,
+      options: moves
+        ? moves.map(mv => ({ type: mv.type, label: mv.name }))
+        : byName.get(m.name).types.map(t => ({ type: t, label: `${t} STAB` })),
+    };
+  });
+
+  const targets = [];
+  for (const p of POKEMON_DATA) {
+    if (!tiers.includes(p.tier) || picked.has(p.name)) continue;
+    const defAbility = p.abilities.length === 1 ? p.abilities[0] : null;
+
+    let hitters = 0, bestMult = 0, bestBy = '';
+    for (const a of attackers) {
+      let memberBest = 0, memberMove = '';
+      for (const o of a.options) {
+        const mult = effectiveness(o.type, p.types, defAbility);
+        if (mult > memberBest) { memberBest = mult; memberMove = o.label; }
+      }
+      if (memberBest >= 2) hitters++;
+      if (memberBest > bestMult) { bestMult = memberBest; bestBy = `${a.name}'s ${memberMove}`; }
+    }
+    if (hitters < 2 && bestMult < 4) continue;
+
+    // Does it threaten us back? (same STAB read as the threat list)
+    let hitsBack = 0;
+    for (const m of mons) {
+      const target = byName.get(m.name);
+      let best = 0;
+      for (const atk of p.types) best = Math.max(best, effectiveness(atk, target.types, monAbility(m)));
+      if (best >= 2) hitsBack++;
+    }
+
+    targets.push({ p, hitters, bestMult, bestBy, hitsBack, score: hitters * 2 + (bestMult >= 4 ? 2 : 0) - hitsBack });
+  }
+
+  targets.sort((a, b) => b.score - a.score || b.bestMult - a.bestMult || bst(b.p) - bst(a.p));
+
+  const list = $('#target-list');
+  if (!targets.length) {
+    list.innerHTML = '<p class="hint">No Pokémon in the selected tiers is hit super-effectively by 2+ of your members — consider widening your coverage moves.</p>';
+    return;
+  }
+  list.innerHTML = targets.slice(0, 12).map(t => `
+    <div class="threat">
+      <span class="threat-name">${t.p.name} <span class="mon-tier">${t.p.tier}</span></span>
+      ${t.p.types.map(typeBadge).join(' ')}
+      <span class="threat-detail">${t.hitters}/${mons.length} members hit it super-effectively · hardest: ${t.bestBy} (${multLabel(t.bestMult)}×)${t.hitsBack ? ` · but it threatens ${t.hitsBack} of yours back` : ' · safe matchup'}</span>
+      <span class="threat-score">target score ${t.score}</span>
+    </div>`).join('');
+}
+
 // ---------- threat analysis ----------
 function renderThreats(mons) {
   const includeUU = $('#threat-uu').checked;
@@ -810,6 +876,10 @@ $('#btn-clear').addEventListener('click', () => {
 $('#threat-uu').addEventListener('change', () => {
   const mons = team.filter(Boolean);
   if (mons.length) renderThreats(mons);
+});
+$('#target-uu').addEventListener('change', () => {
+  const mons = team.filter(Boolean);
+  if (mons.length) renderTargets(mons);
 });
 $('#replace-member').addEventListener('change', () => {
   const mons = team.filter(Boolean);
