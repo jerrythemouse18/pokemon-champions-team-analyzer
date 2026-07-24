@@ -272,6 +272,16 @@ td.c-total   { background: transparent; color: var(--ink-2); font-weight: 600; }
 .se-move-chip .se-pct { color: var(--muted); font-variant-numeric: tabular-nums; }
 .se-move-chip .type-badge { font-size: 10px; padding: 1px 6px; }
 
+/* ---- speed tiers ---- */
+.speed-controls { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 10px; }
+table.speed { width: 100%; max-width: 640px; }
+table.speed th { text-align: left; font-weight: 500; }
+table.speed td.c-total { min-width: 44px; text-align: right; padding-right: 10px; }
+table.speed .speed-note { color: var(--muted); font-size: 12px; text-align: left; }
+tr.speed-mine th { color: var(--ink); font-weight: 700; }
+tr.speed-mine { background: rgba(57, 135, 229, 0.12); outline: 1px solid rgba(57, 135, 229, 0.4); }
+tr.speed-tie td.c-total { color: var(--muted); }
+
 /* ---- illegal-move badge ---- */
 .mon-illegal {
   display: inline-flex;

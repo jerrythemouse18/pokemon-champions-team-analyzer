@@ -8,7 +8,7 @@ The prototype covers team input + type advantage/disadvantage analysis. These ar
 |---|---------|--------------|--------|
 | A1 | ~~**Movepool-aware coverage**~~ | ✅ Shipped — usage-stats movesets auto-fill on selection; offensive coverage and the damage calc use real moves. | Done |
 | A2 | ~~**Damage calculator**~~ | ✅ Shipped — real ranges + KO chances via the vendored `@smogon/calc` engine, with doubles/weather/terrain toggles. Uses imported sets when available. | Done |
-| A3 | **Speed tiers view** | Sort your team + the meta by Speed stat; show who you outspeed at common benchmarks (max speed, neutral, uninvested). | Small |
+| A3 | ~~**Speed tiers view**~~ | ✅ Shipped — level-50 speed ladder vs the meta with real spreads, item modifiers, and a Tailwind toggle. | Done |
 | A4 | **Threat matchup detail** | Click a threat to see exactly which of your members it beats/loses to and with what multipliers. | Small |
 | A5 | **Mega Evolution comparison** | Side-by-side base vs. Mega form when picking (e.g. Garchomp vs Garchomp-Mega) with stat/typing deltas. | Medium |
 

@@ -64,7 +64,10 @@ Real damage math via the open-source [@smogon/calc](https://github.com/smogon/da
 ### 10. Best targets
 The mirror of Top threats: scans the metagame and ranks Pokémon by how hard your team's **actual saved moves** hit them — who is weak to your team. Shows how many members land a super-effective hit, the single hardest hit and which move delivers it ("Garchomp-Mega's Earthquake, 4×"), and whether the target threatens you back ("safe matchup" when it doesn't). Members without saved moves count with their STAB types; a target's defensive ability is applied when unambiguous.
 
-### 11. Top threats
+### 11. Speed tiers
+A level-50 speed ladder mixing your team with the metagame — who moves before whom. Your members (highlighted) use their **saved spread, nature, and item** (Choice Scarf ×1.5 etc.); meta Pokémon show their most common ladder spread's speed (falling back to max-invested). A **Tailwind toggle** doubles your side's speeds, ties are visually grouped, and the list is trimmed to what matters: everything faster than your slowest member plus a short tail below.
+
+### 12. Top threats
 Scans the Champions metagame (Uber/OU/UUBL by default, UU toggleable) and ranks Pokémon by threat score:
 
 ```

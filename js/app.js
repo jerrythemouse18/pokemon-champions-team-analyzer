@@ -253,7 +253,7 @@ function multLabel(mult) {
 function renderAnalysis() {
   const mons = team.filter(Boolean);
   const show = mons.length > 0;
-  ['#summary-section', '#defense-section', '#offense-section', '#threats-section', '#targets-section', '#damage-section']
+  ['#summary-section', '#defense-section', '#offense-section', '#threats-section', '#targets-section', '#damage-section', '#speed-section']
     .forEach(sel => { $(sel).hidden = !show; });
   $('#compat-section').hidden = mons.length < 2;
   $('#replace-section').hidden = mons.length < 2;
@@ -266,6 +266,7 @@ function renderAnalysis() {
   renderThreats(mons);
   renderTargets(mons);
   renderDamageCalc(mons);
+  renderSpeedTiers(mons);
   if (mons.length >= 2) { renderCompat(mons); renderReplacement(mons); }
 }
 
@@ -881,6 +882,10 @@ $('#target-uu').addEventListener('change', () => {
   const mons = team.filter(Boolean);
   if (mons.length) renderTargets(mons);
 });
+['#speed-uu', '#speed-tailwind'].forEach(sel => $(sel).addEventListener('change', () => {
+  const mons = team.filter(Boolean);
+  if (mons.length) renderSpeedTiers(mons);
+}));
 $('#replace-member').addEventListener('change', () => {
   const mons = team.filter(Boolean);
   if (mons.length >= 2) renderReplacementResults(mons);

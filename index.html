@@ -111,6 +111,16 @@
     <div id="dmg-results"></div>
   </section>
 
+  <section class="card" id="speed-section" hidden>
+    <h2>Speed tiers</h2>
+    <p class="hint">Who moves first at level 50. Your members (highlighted) use their <b>saved spread and item</b> (Choice Scarf ×1.5 included); meta Pokémon show their <b>common ladder spread</b> speed plus their max (252 EVs, +nature) and uninvested benchmarks. Ties are decided randomly in game.</p>
+    <div class="speed-controls">
+      <label class="toggle"><input type="checkbox" id="speed-uu"> Include UU tier</label>
+      <label class="toggle"><input type="checkbox" id="speed-tailwind"> Tailwind on your side (×2)</label>
+    </div>
+    <div class="table-wrap"><table id="speed-table" class="matrix speed"></table></div>
+  </section>
+
   <section class="card" id="threats-section" hidden>
     <h2>Top threats</h2>
     <p class="hint">Pokémon from the Champions metagame ranked by how badly they match up against your team: how many of your members they hit super-effectively with STAB, plus how many of your members' STABs they resist.</p>
@@ -131,6 +141,7 @@
 <script src="js/vendor/smogon-calc.min.js"></script>
 <script src="js/showdown.js"></script>
 <script src="js/damagecalc.js"></script>
+<script src="js/speedtiers.js"></script>
 <script src="js/seteditor.js"></script>
 <script src="js/app.js"></script>
 </body>
