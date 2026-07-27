@@ -288,7 +288,7 @@ function renderDefense(mons) {
       const mult = defenseMult(atk, m);
       if (mult > 1) weak++;
       if (mult < 1) resist++;
-      row += `<td class="${cellClass(mult)}" title="${atk} vs ${m.name}: ${mult}×">${multLabel(mult)}</td>`;
+      row += `<td class="${cellClass(mult)}" tabindex="0" data-tip="${atk} vs ${m.name}: ${multLabel(mult)}×${monAbility(m) && ABILITY_MODIFIERS[monAbility(m)] && ABILITY_MODIFIERS[monAbility(m)][atk] !== undefined ? ' (' + monAbility(m) + ')' : ''}">${multLabel(mult)}</td>`;
     }
     row += `<td class="c-total">${weak} / ${resist}</td></tr>`;
     html += row;
@@ -337,13 +337,15 @@ function renderOffense(mons) {
 
   const notCovered = [];
   for (const def of TYPES) {
-    let best = 0, bestSrc = '';
+    let best = 0, bestSrcs = [];
     for (const [atk, sources] of atkTypes) {
       const mult = effectiveness(atk, [def], null);
-      if (mult > best) { best = mult; bestSrc = [...sources][0]; }
+      if (mult > best) { best = mult; bestSrcs = [...sources]; }
+      else if (mult === best && mult > 0) bestSrcs.push(...sources);
     }
     if (best <= 1) notCovered.push({ type: def, best });
-    html += `<td class="${best >= 2 ? 'c-res2' : best === 1 ? 'c-neutral' : 'c-weak2'}" title="Best vs ${def}: ${best}× (${bestSrc || 'none'})">${multLabel(best)}</td>`;
+    const srcList = bestSrcs.slice(0, 4).join(' · ') + (bestSrcs.length > 4 ? ` (+${bestSrcs.length - 4} more)` : '');
+    html += `<td class="${best >= 2 ? 'c-res2' : best === 1 ? 'c-neutral' : 'c-weak2'}" tabindex="0" data-tip="vs ${def}: ${best}× — ${srcList || 'no damaging move'}">${multLabel(best)}</td>`;
   }
   html += '</tr></tbody>';
   table.innerHTML = html;
@@ -600,7 +602,7 @@ function renderCompat(mons) {
       const s = syn[i][j];
       sum += s.score;
       const sel = compatSelection && ((compatSelection[0] === i && compatSelection[1] === j) || (compatSelection[0] === j && compatSelection[1] === i));
-      html += `<td class="${compatClass(s.score)} compat-cell${sel ? ' selected' : ''}" data-i="${i}" data-j="${j}" role="button" tabindex="0" title="${mons[i].name} + ${mons[j].name}: ${s.score > 0 ? '+' : ''}${s.score}">${s.score > 0 ? '+' : ''}${s.score}</td>`;
+      html += `<td class="${compatClass(s.score)} compat-cell${sel ? ' selected' : ''}" data-i="${i}" data-j="${j}" role="button" tabindex="0" data-tip="${mons[i].name} + ${mons[j].name}: ${s.score > 0 ? '+' : ''}${s.score} — click for breakdown">${s.score > 0 ? '+' : ''}${s.score}</td>`;
     }
     const avg = sum / (mons.length - 1);
     html += `<td class="c-total">${avg >= 0 ? '+' : ''}${avg.toFixed(1)}</td></tr>`;

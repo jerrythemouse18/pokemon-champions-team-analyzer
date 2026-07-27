@@ -41,7 +41,7 @@ A 6×6 synergy matrix scoring every pair of teammates: **+1** for each weakness 
 An 18-row heatmap: every attacking type vs. every team member, with the exact multiplier (0, ¼, ½, 1, 2, 4×) in each cell and a per-type **weak/resist tally**. Ability modifiers included.
 
 ### 5. Offensive coverage
-For every defending type, the best multiplier any of your team's **actual damaging moves** achieves (hover a cell to see which move it is). Members without move data fall back to STAB types, and the note under the table says which basis was used.
+For every defending type, the best multiplier any of your team's **actual damaging moves** achieves — hovering (or keyboard-focusing) a cell shows instantly which move(s) deliver the hit. Members without move data fall back to STAB types, and the note under the table says which basis was used.
 
 ### 6. Replacement finder
 Select any team member and the app scans the whole Champions roster (Uber/OU/UUBL by default, UU toggleable) for Pokémon that would serve the team better in that slot. Each candidate is scored on the change to the **whole team**, not the individual: super-effective STAB coverage gained, pair synergy with the remaining five, stacked weaknesses removed, unresisted types patched. Every suggestion shows *why* it helps ("unstacks Ice weakness", "adds a resist to Ground", …) and has a one-click **Swap in** button.
