@@ -46,6 +46,7 @@ function metaSpeeds(p) {
 function renderSpeedTiers(mons) {
   const includeUU = $('#speed-uu').checked;
   const tailwind = $('#speed-tailwind').checked;
+  const query = $('#speed-search').value.trim().toLowerCase();
   const tiers = includeUU ? ['Uber', 'OU', 'UUBL', 'UU'] : ['Uber', 'OU', 'UUBL'];
   const picked = new Set(mons.map(m => m.name));
 
@@ -61,26 +62,40 @@ function renderSpeedTiers(mons) {
   }
 
   for (const p of POKEMON_DATA) {
-    if (!tiers.includes(p.tier) || picked.has(p.name)) continue;
-    // Only the most relevant benchmark per meta mon keeps the ladder readable:
-    // common spread when known, otherwise max.
+    if (picked.has(p.name)) continue;
+    // A search looks across ALL tiers (finding "Dragapult" shouldn't require
+    // the right tier toggle); otherwise the tier filter applies.
+    if (query ? !p.name.toLowerCase().includes(query) : !tiers.includes(p.tier)) continue;
     const speeds = metaSpeeds(p);
-    const chosen = speeds.find(s => s.kind === 'common') || speeds.find(s => s.kind === 'max');
-    rows.push({ name: p.name, spe: chosen.spe, mine: false, note: chosen.note, tier: p.tier });
+    if (query) {
+      // Searched mons show every benchmark: common, max, and uninvested.
+      for (const s of speeds) {
+        rows.push({ name: p.name, spe: s.spe, mine: false, note: s.note, tier: p.tier });
+      }
+    } else {
+      // Only the most relevant benchmark per meta mon keeps the ladder readable.
+      const chosen = speeds.find(s => s.kind === 'common') || speeds.find(s => s.kind === 'max');
+      rows.push({ name: p.name, spe: chosen.spe, mine: false, note: chosen.note, tier: p.tier });
+    }
   }
 
   rows.sort((a, b) => b.spe - a.spe || (a.mine === b.mine ? 0 : a.mine ? -1 : 1));
 
   // Keep the meta list focused: everything faster than your slowest member,
-  // plus a short tail below so you can see what you outspeed.
-  const slowestMine = Math.min(...rows.filter(r => r.mine).map(r => r.spe));
+  // plus a short tail below so you can see what you outspeed. A search shows
+  // all matches regardless.
+  const slowestMine = rows.some(r => r.mine) ? Math.min(...rows.filter(r => r.mine).map(r => r.spe)) : 0;
   let tail = 0;
   const shown = rows.filter(r => {
-    if (r.mine || r.spe >= slowestMine) return true;
+    if (r.mine || query || r.spe >= slowestMine) return true;
     return ++tail <= 8;
   });
 
   const table = $('#speed-table');
+  if (query && !shown.some(r => !r.mine)) {
+    table.innerHTML = `<tbody><tr><td class="speed-note" style="padding:10px 4px">No Pokémon matching “${query.replace(/</g, '&lt;')}”.</td></tr></tbody>`;
+    return;
+  }
   let html = '<thead><tr><th>Spe</th><th>Pokémon</th><th>Spread</th></tr></thead><tbody>';
   let lastSpe = null;
   for (const r of shown) {

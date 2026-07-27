@@ -895,6 +895,10 @@ $('#target-uu').addEventListener('change', () => {
   const mons = team.filter(Boolean);
   if (mons.length) renderSpeedTiers(mons);
 }));
+$('#speed-search').addEventListener('input', () => {
+  const mons = team.filter(Boolean);
+  if (mons.length) renderSpeedTiers(mons);
+});
 $('#replace-member').addEventListener('change', () => {
   const mons = team.filter(Boolean);
   if (mons.length >= 2) renderReplacementResults(mons);
