@@ -155,7 +155,7 @@ function attachDefenderPicker() {
     matches.forEach(p => {
       const item = document.createElement('div');
       item.className = 'ac-item';
-      item.innerHTML = `<span>${p.name} ${p.types.map(typeBadge).join(' ')}</span><span class="ac-tier">${p.tier}</span>`;
+      item.innerHTML = `<span class="ac-mon">${spriteImg(p.name, 'sprite-sm')}${p.name} ${p.types.map(typeBadge).join(' ')}</span><span class="ac-tier">${p.tier}</span>`;
       item.addEventListener('mousedown', e => {
         e.preventDefault();
         dmgDefender = p;

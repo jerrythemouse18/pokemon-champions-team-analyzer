@@ -22,7 +22,7 @@ python3 -m http.server 8080
 ## What it does
 
 ### 1. Team builder
-- Autocomplete search over the full 323-Pokémon Champions dex
+- Autocomplete search over the full 323-Pokémon Champions dex, with sprites everywhere (slots, search results, threat/target lists, set editor) — self-hosted Showdown sprite set incl. Champions-exclusive Mega forms
 - Shows types, tier, ability, and base stats for each pick
 - **Auto-filled movesets** — every pick loads its most common competitive doubles set (top-4 moves, item, nature, EV spread, ability) from Champions VGC ladder usage stats (1.16M battles, June 2026); 282 of 323 Pokémon have usage data, the rest start blank
 - **Ability selector** — abilities that change type matchups (marked ★) are factored into all defensive math: Levitate, Water/Volt Absorb, Flash Fire, Lightning Rod, Motor Drive, Sap Sipper, Earth Eater, Dry Skin, Thick Fat, Heatproof, Fluffy, Water Bubble, Purifying Salt
@@ -101,6 +101,8 @@ js/vendor/          @smogon/calc bundled as a single browser script (MIT)
 data/pokemon.js     323-Pokémon roster (names, types, abilities, stats, tiers)
 data/movesets.js    doubles usage data: top moves w/ %, item, spread, ability per mon
 data/learnsets.js   per-mon legal moves in Champions (Megas alias to base forms)
+data/sprites.js     name -> sprite-file mapping
+sprites/            self-hosted 96px sprites (Showdown gen5 set, ~1.4 MB)
 data/README.md      how the data was extracted and how to refresh it
 ```
 
@@ -113,6 +115,7 @@ curl -s "https://www.smogon.com/dex/champions/pokemon/" -o /tmp/champions.html
 python3 scripts/extract_data.py       # regenerates data/pokemon.js
 python3 scripts/extract_movesets.py   # regenerates data/movesets.js from latest usage stats
 python3 scripts/extract_learnsets.py  # regenerates data/learnsets.js (per-mon legal moves)
+python3 scripts/fetch_sprites.py      # downloads any missing sprites + regenerates data/sprites.js
 ```
 
 ## Roadmap

@@ -26,7 +26,7 @@ The prototype covers team input + type advantage/disadvantage analysis. These ar
 
 | # | Feature | What it adds | Effort |
 |---|---------|--------------|--------|
-| C1 | **Pokémon sprites** | Official artwork/sprites in slots, autocomplete, and threat list. | Small |
+| C1 | ~~**Pokémon sprites**~~ | ✅ Shipped — self-hosted Showdown sprites in slots, autocomplete, threat/target/replacement lists, and the set editor. | Done |
 | C2 | **Light mode** | Validated light theme with a toggle. | Small |
 | C3 | **Mobile layout pass** | Optimized matrix rendering for phones (Champions is a Switch/mobile game, so likely used on the go). | Medium |
 | C4 | **PWA / offline** | Installable, works offline — the data is already bundled. | Small |

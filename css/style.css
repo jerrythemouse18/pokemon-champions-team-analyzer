@@ -141,6 +141,10 @@ main { max-width: 1200px; margin: 0 auto; padding: 12px 28px 40px; }
 .ac-tier { color: var(--muted); font-size: 11px; }
 
 .mon-name { font-weight: 600; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+.sprite-slot { width: 56px; height: 56px; image-rendering: pixelated; flex-shrink: 0; margin: -6px 0; }
+.sprite-sm { width: 36px; height: 36px; image-rendering: pixelated; flex-shrink: 0; margin: -6px 0; }
+.threat .sprite-sm { margin: -8px 0 -8px -4px; }
+.ac-mon { display: inline-flex; align-items: center; gap: 6px; }
 .mon-tier {
   font-size: 10px;
   color: var(--ink-2);

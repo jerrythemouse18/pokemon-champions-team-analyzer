@@ -99,7 +99,7 @@ function attachAutocomplete(input, ac, slotIdx) {
     matches.forEach((p, idx) => {
       const item = document.createElement('div');
       item.className = 'ac-item';
-      item.innerHTML = `<span>${p.name} ${p.types.map(typeBadge).join(' ')}</span><span class="ac-tier">${p.tier}</span>`;
+      item.innerHTML = `<span class="ac-mon">${spriteImg(p.name, 'sprite-sm')}${p.name} ${p.types.map(typeBadge).join(' ')}</span><span class="ac-tier">${p.tier}</span>`;
       item.addEventListener('mousedown', e => { e.preventDefault(); pick(idx); });
       ac.appendChild(item);
     });
@@ -156,7 +156,7 @@ function filledSlot(mon, i) {
 
   const name = document.createElement('div');
   name.className = 'mon-name';
-  name.innerHTML = `${p.name} <span class="mon-tier">${p.tier}</span>`;
+  name.innerHTML = `${spriteImg(p.name, 'sprite-slot')}<span>${p.name} <span class="mon-tier">${p.tier}</span></span>`;
   div.appendChild(name);
 
   const types = document.createElement('div');
@@ -222,6 +222,13 @@ function filledSlot(mon, i) {
 
 function typeBadge(t) {
   return `<span class="type-badge" style="background:${TYPE_COLORS[t]}">${t}</span>`;
+}
+
+// 96x96 Showdown sprite, self-hosted. Empty string when unmapped (shouldn't
+// happen for roster mons, but don't render a broken image if data drifts).
+function spriteImg(name, cls) {
+  const sid = typeof SPRITE_IDS !== 'undefined' && SPRITE_IDS[name];
+  return sid ? `<img class="${cls}" src="sprites/${sid}.png" alt="" loading="lazy" width="96" height="96">` : '';
 }
 
 function monAbility(mon) {
@@ -731,7 +738,7 @@ function renderReplacementResults(mons) {
     if (!reasons.length) reasons.push('fewer total weaknesses across the team');
     return `
     <div class="threat">
-      <span class="threat-name">${c.p.name} <span class="mon-tier">${c.p.tier}</span></span>
+      ${spriteImg(c.p.name, 'sprite-sm')}<span class="threat-name">${c.p.name} <span class="mon-tier">${c.p.tier}</span></span>
       ${c.p.types.map(typeBadge).join(' ')}
       <span class="threat-detail">${reasons.join(' · ')}</span>
       <span class="threat-score">team score ${c.delta > 0 ? '+' : ''}${c.delta.toFixed(1)}</span>
@@ -810,7 +817,7 @@ function renderTargets(mons) {
   }
   list.innerHTML = targets.slice(0, 12).map(t => `
     <div class="threat">
-      <span class="threat-name">${t.p.name} <span class="mon-tier">${t.p.tier}</span></span>
+      ${spriteImg(t.p.name, 'sprite-sm')}<span class="threat-name">${t.p.name} <span class="mon-tier">${t.p.tier}</span></span>
       ${t.p.types.map(typeBadge).join(' ')}
       <span class="threat-detail">${t.hitters}/${mons.length} members hit it super-effectively · hardest: ${t.bestBy} (${multLabel(t.bestMult)}×)${t.hitsBack ? ` · but it threatens ${t.hitsBack} of yours back` : ' · safe matchup'}</span>
       <span class="threat-score">target score ${t.score}</span>
@@ -858,7 +865,7 @@ function renderThreats(mons) {
   }
   list.innerHTML = threats.slice(0, 12).map(t => `
     <div class="threat">
-      <span class="threat-name">${t.p.name} <span class="mon-tier">${t.p.tier}</span></span>
+      ${spriteImg(t.p.name, 'sprite-sm')}<span class="threat-name">${t.p.name} <span class="mon-tier">${t.p.tier}</span></span>
       ${t.p.types.map(typeBadge).join(' ')}
       <span class="threat-detail">hits ${t.hits}/${mons.length} members super-effectively${t.walls ? ` · resists ${t.walls} of your STAB types` : ''}</span>
       <span class="threat-score">threat score ${t.score}</span>

@@ -105,7 +105,7 @@ function openSetEditor(slotIdx) {
   const overlay = _editorEl();
 
   overlay.querySelector('.se-title').innerHTML =
-    `${p.name} <span class="mon-tier">${p.tier}</span> ${p.types.map(typeBadge).join(' ')}`;
+    `${spriteImg(p.name, 'sprite-sm')}${p.name} <span class="mon-tier">${p.tier}</span> ${p.types.map(typeBadge).join(' ')}`;
 
   const abilitySel = overlay.querySelector('.se-ability');
   abilitySel.innerHTML = '';
