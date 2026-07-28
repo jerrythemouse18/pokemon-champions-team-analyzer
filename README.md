@@ -21,6 +21,8 @@ python3 -m http.server 8080
 
 ## What it does
 
+The layout is a **dashboard**: team builder and the wide defensive matrix span the full width, the other cards flow in two columns on wide screens (single column on mobile). Once the team builder scrolls out of view, a **sticky team strip** pins your six to the top — click any member to jump back and edit its set.
+
 ### 1. Team builder
 - Autocomplete search over the full 323-Pokémon Champions dex, with sprites everywhere (slots, search results, threat/target lists, set editor) — self-hosted Showdown sprite set incl. Champions-exclusive Mega forms
 - Shows types, tier, ability, and base stats for each pick

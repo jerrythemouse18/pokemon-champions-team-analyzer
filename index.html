@@ -8,6 +8,12 @@
 </head>
 <body>
 <span id="version-badge"></span>
+<div id="team-strip" hidden>
+  <div class="strip-inner">
+    <span class="strip-title">Team</span>
+    <div id="strip-mons"></div>
+  </div>
+</div>
 <header class="app-header">
   <div>
     <h1>Champions Team Analyzer</h1>
@@ -21,7 +27,7 @@
   </div>
 </header>
 
-<main>
+<main class="dashboard">
   <section class="card" id="import-section" hidden>
     <h2>Import / export Showdown paste</h2>
     <p class="hint">Paste a team in Pokémon Showdown export format. Items, EVs/IVs, natures, and moves are kept and used by the damage calculator.</p>
@@ -39,40 +45,56 @@
     <div class="team-grid" id="team-grid"></div>
   </section>
 
-  <section class="card" id="summary-section" hidden>
-    <h2>Team summary</h2>
-    <div id="archetype"></div>
-    <div id="summary-chips" class="chip-row"></div>
-    <div id="suggestions"></div>
-  </section>
-
-  <section class="card" id="compat-section" hidden>
-    <h2>Pair compatibility</h2>
-    <p class="hint">How well each pair of teammates covers the other's weaknesses: <b>+1</b> for each weakness one member has that the other resists, <b>&minus;2</b> for each weakness they share. Click a cell for the breakdown. <span class="key"><span class="swatch sw-res2"></span>strong synergy</span> <span class="key"><span class="swatch sw-res"></span>good</span> <span class="key"><span class="swatch sw-neutral"></span>neutral</span> <span class="key"><span class="swatch sw-weak"></span>poor</span> <span class="key"><span class="swatch sw-weak2"></span>bad</span></p>
-    <div class="table-wrap"><table id="compat-table" class="matrix"></table></div>
-    <div id="compat-detail"></div>
-  </section>
-
   <section class="card" id="defense-section" hidden>
     <h2>Defensive matrix</h2>
     <p class="hint">How hard each attacking type hits each of your Pokémon, ability included. <span class="key"><span class="swatch sw-immune"></span>immune</span> <span class="key"><span class="swatch sw-res2"></span>&frac14;&times;</span> <span class="key"><span class="swatch sw-res"></span>&frac12;&times;</span> <span class="key"><span class="swatch sw-neutral"></span>1&times;</span> <span class="key"><span class="swatch sw-weak"></span>2&times;</span> <span class="key"><span class="swatch sw-weak2"></span>4&times;</span></p>
     <div class="table-wrap"><table id="defense-table" class="matrix"></table></div>
   </section>
 
+  <div class="dash-col">
+  <section class="card" id="summary-section" hidden>
+    <h2>Team summary</h2>
+    <div id="archetype"></div>
+    <div id="summary-chips" class="chip-row"></div>
+    <div id="suggestions"></div>
+  </section>
   <section class="card" id="offense-section" hidden>
     <h2>Offensive coverage</h2>
     <p class="hint">Best effectiveness your team's actual damaging moves achieve against each defending type (hover a cell to see which move). Members without move data count as STAB only.</p>
     <div class="table-wrap"><table id="offense-table" class="matrix"></table></div>
     <div id="offense-notes"></div>
   </section>
+  <section class="card" id="threats-section" hidden>
+    <h2>Top threats</h2>
+    <p class="hint">Pokémon from the Champions metagame ranked by how badly they match up against your team: how many of your members they hit super-effectively with STAB, plus how many of your members' STABs they resist.</p>
+    <label class="toggle"><input type="checkbox" id="threat-uu"> Include UU tier (default: Uber / OU / UUBL only)</label>
+    <div id="threat-list"></div>
+  </section>
+  <section class="card" id="speed-section" hidden>
+    <h2>Speed tiers</h2>
+    <p class="hint">Who moves first at level 50. Your members (highlighted) use their <b>saved spread and item</b> (Choice Scarf ×1.5 included); meta Pokémon show their <b>common ladder spread</b> speed plus their max (252 EVs, +nature) and uninvested benchmarks. Ties are decided randomly in game.</p>
+    <div class="speed-controls">
+      <input type="text" id="speed-search" placeholder="Search Pokémon…" aria-label="Filter speed tiers by Pokémon name">
+      <label class="toggle"><input type="checkbox" id="speed-uu"> Include UU tier</label>
+      <label class="toggle"><input type="checkbox" id="speed-tailwind"> Tailwind on your side (×2)</label>
+    </div>
+    <div class="table-wrap"><table id="speed-table" class="matrix speed"></table></div>
+  </section>
+  </div>
 
+  <div class="dash-col">
+  <section class="card" id="compat-section" hidden>
+    <h2>Pair compatibility</h2>
+    <p class="hint">How well each pair of teammates covers the other's weaknesses: <b>+1</b> for each weakness one member has that the other resists, <b>&minus;2</b> for each weakness they share. Click a cell for the breakdown. <span class="key"><span class="swatch sw-res2"></span>strong synergy</span> <span class="key"><span class="swatch sw-res"></span>good</span> <span class="key"><span class="swatch sw-neutral"></span>neutral</span> <span class="key"><span class="swatch sw-weak"></span>poor</span> <span class="key"><span class="swatch sw-weak2"></span>bad</span></p>
+    <div class="table-wrap"><table id="compat-table" class="matrix"></table></div>
+    <div id="compat-detail"></div>
+  </section>
   <section class="card" id="targets-section" hidden>
     <h2>Best targets</h2>
     <p class="hint">The mirror of Top threats: Pokémon from the Champions metagame ranked by how hard your team's <b>actual moves</b> hit them — who is weak to your team. Members without saved moves count with their STAB types.</p>
     <label class="toggle"><input type="checkbox" id="target-uu"> Include UU tier (default: Uber / OU / UUBL only)</label>
     <div id="target-list"></div>
   </section>
-
   <section class="card" id="replace-section" hidden>
     <h2>Replacement finder</h2>
     <p class="hint">Pick a team member and see which Pokémon would serve this team better in that slot. Candidates are scored on the change to the whole team: offensive coverage, pair synergy, stacked weaknesses, and unresisted types.</p>
@@ -82,7 +104,6 @@
     </div>
     <div id="replace-results"></div>
   </section>
-
   <section class="card" id="damage-section" hidden>
     <h2>Damage calculator</h2>
     <p class="hint">Real damage ranges via the open-source <a href="https://github.com/smogon/damage-calc" target="_blank" rel="noopener">@smogon/calc</a> engine. Uses each member's saved moves, items, EVs and nature; defenders get their most common ladder spread, so ranges reflect what you'd actually meet.</p>
@@ -111,24 +132,8 @@
     </div>
     <div id="dmg-results"></div>
   </section>
+  </div>
 
-  <section class="card" id="speed-section" hidden>
-    <h2>Speed tiers</h2>
-    <p class="hint">Who moves first at level 50. Your members (highlighted) use their <b>saved spread and item</b> (Choice Scarf ×1.5 included); meta Pokémon show their <b>common ladder spread</b> speed plus their max (252 EVs, +nature) and uninvested benchmarks. Ties are decided randomly in game.</p>
-    <div class="speed-controls">
-      <input type="text" id="speed-search" placeholder="Search Pokémon…" aria-label="Filter speed tiers by Pokémon name">
-      <label class="toggle"><input type="checkbox" id="speed-uu"> Include UU tier</label>
-      <label class="toggle"><input type="checkbox" id="speed-tailwind"> Tailwind on your side (×2)</label>
-    </div>
-    <div class="table-wrap"><table id="speed-table" class="matrix speed"></table></div>
-  </section>
-
-  <section class="card" id="threats-section" hidden>
-    <h2>Top threats</h2>
-    <p class="hint">Pokémon from the Champions metagame ranked by how badly they match up against your team: how many of your members they hit super-effectively with STAB, plus how many of your members' STABs they resist.</p>
-    <label class="toggle"><input type="checkbox" id="threat-uu"> Include UU tier (default: Uber / OU / UUBL only)</label>
-    <div id="threat-list"></div>
-  </section>
 </main>
 
 <footer class="app-footer">
@@ -149,5 +154,6 @@
 <script src="js/version.js"></script>
 <script src="js/seteditor.js"></script>
 <script src="js/app.js"></script>
+<script src="js/teamstrip.js"></script>
 </body>
 </html>
