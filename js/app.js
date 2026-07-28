@@ -958,6 +958,18 @@ $('#dmg-attacker').addEventListener('change', () => renderDamageResults(team.fil
 attachDefenderPicker();
 renderCommonDefenders();
 attachVersusUI();
+$('#plan-mode-a').addEventListener('click', () => {
+  planMode = 'A';
+  $('#plan-mode-a').classList.add('active');
+  $('#plan-mode-b').classList.remove('active');
+  renderGamePlan();
+});
+$('#plan-mode-b').addEventListener('click', () => {
+  planMode = 'B';
+  $('#plan-mode-b').classList.add('active');
+  $('#plan-mode-a').classList.remove('active');
+  renderGamePlan();
+});
 
 // Damage direction toggle: outgoing (my attacks) vs incoming (opponent attacks me).
 function setDmgDirection(incoming) {

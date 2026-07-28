@@ -42,6 +42,11 @@ Scores all pairs of your team as **doubles lead combinations** and shows the top
 ### 4. Versus: opposing team
 Enter the opponent's six (autocomplete or Showdown paste) and get a full **6×6 matchup matrix**: each cell nets your member's hardest hit into theirs against their hardest hit back (max damage %, doubles field, your saved sets vs their common ladder sets — or their pasted sets if you have them). Blue cells mean you win the trade, red means they do; hover shows the exact moves and percentages behind the number. Row/column averages plus a plain-language summary name your best pivot into the team, your weakest member, and their scariest threat.
 
+Below the matrix, a **game plan** panel picks both sides' battle-of-4:
+- **Their most likely picks** — the opponent's best 4 against your team, with their expected 2 leads (matchup strength + support moves in their common ladder sets)
+- **Your 4 + leads** — with a mode toggle: **Counter their best 4** (predict their picks first, then choose your best answer to exactly those) or **Best vs all 6** (maximize your matchups across their whole roster). Your leads come from the same scorer as the Recommended leads card, evaluated within the picked 4.
+The pick-4 optimizer scores every possible 4-subset by "someone answers everything": for each opposing Pokémon, your best net matchup into it, summed.
+
 ### 5. Pair compatibility
 A 6×6 synergy matrix scoring every pair of teammates: **+1** for each weakness one member has that the other resists (they cover each other), **−2** for each weakness both share (stacked liability). Click any cell for the exact type-by-type breakdown; the Avg column shows each member's mean synergy with the rest of the team — a quick way to spot the odd one out.
 
