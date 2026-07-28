@@ -82,6 +82,22 @@ function emptySlot(i) {
   return div;
 }
 
+// Shared roster search: prefix matches first, then substring, alphabetical
+// within each group. High cap so broad queries like "mega" list every form
+// (the dropdown scrolls).
+function searchRoster(q, excluded) {
+  const lower = q.toLowerCase();
+  const pre = [], sub = [];
+  for (const p of POKEMON_DATA) {
+    if (excluded && excluded.has(p.name)) continue;
+    const name = p.name.toLowerCase();
+    const idx = name.indexOf(lower);
+    if (idx === 0) pre.push(p);
+    else if (idx > 0) sub.push(p);
+  }
+  return [...pre, ...sub].slice(0, 150);
+}
+
 function attachAutocomplete(input, ac, slotIdx) {
   let matches = [];
   let active = -1;
@@ -92,9 +108,7 @@ function attachAutocomplete(input, ac, slotIdx) {
     active = -1;
     if (!q) { ac.hidden = true; return; }
     const picked = new Set(team.filter(Boolean).map(m => m.name));
-    matches = POKEMON_DATA
-      .filter(p => p.name.toLowerCase().includes(q) && !picked.has(p.name))
-      .slice(0, 12);
+    matches = searchRoster(q, picked);
     if (!matches.length) { ac.hidden = true; return; }
     matches.forEach((p, idx) => {
       const item = document.createElement('div');

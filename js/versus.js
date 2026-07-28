@@ -231,7 +231,7 @@ function attachVersusUI() {
       ac.innerHTML = '';
       if (!q) { ac.hidden = true; return; }
       const taken = new Set(oppTeam.filter(Boolean).map(o => o.name));
-      const matches = POKEMON_DATA.filter(p => p.name.toLowerCase().includes(q) && !taken.has(p.name)).slice(0, 10);
+      const matches = searchRoster(q, taken);
       if (!matches.length) { ac.hidden = true; return; }
       matches.forEach(p => {
         const item = document.createElement('div');

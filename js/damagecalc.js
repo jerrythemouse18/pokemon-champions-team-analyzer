@@ -238,7 +238,7 @@ function attachDefenderPicker() {
     const q = input.value.trim().toLowerCase();
     ac.innerHTML = '';
     if (!q) { ac.hidden = true; dmgDefender = null; renderDamageResults(team.filter(Boolean)); return; }
-    matches = POKEMON_DATA.filter(p => p.name.toLowerCase().includes(q)).slice(0, 12);
+    matches = searchRoster(q, null);
     if (!matches.length) { ac.hidden = true; return; }
     matches.forEach(p => {
       const item = document.createElement('div');
