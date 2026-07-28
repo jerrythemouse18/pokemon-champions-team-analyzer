@@ -260,10 +260,11 @@ function multLabel(mult) {
 function renderAnalysis() {
   const mons = team.filter(Boolean);
   const show = mons.length > 0;
-  ['#summary-section', '#defense-section', '#offense-section', '#threats-section', '#targets-section', '#damage-section', '#speed-section']
+  ['#summary-section', '#defense-section', '#offense-section', '#threats-section', '#targets-section', '#damage-section', '#speed-section', '#versus-section']
     .forEach(sel => { $(sel).hidden = !show; });
   $('#compat-section').hidden = mons.length < 2;
   $('#replace-section').hidden = mons.length < 2;
+  $('#leads-section').hidden = mons.length < 2;
   if (!show) return;
 
   renderDefense(mons);
@@ -274,6 +275,8 @@ function renderAnalysis() {
   renderTargets(mons);
   renderDamageCalc(mons);
   renderSpeedTiers(mons);
+  if (mons.length >= 2) renderLeads(mons);
+  renderVersus();
   if (mons.length >= 2) { renderCompat(mons); renderReplacement(mons); }
 }
 
@@ -954,6 +957,7 @@ $('#dmg-attacker').addEventListener('change', () => renderDamageResults(team.fil
 });
 attachDefenderPicker();
 renderCommonDefenders();
+attachVersusUI();
 
 // Damage direction toggle: outgoing (my attacks) vs incoming (opponent attacks me).
 function setDmgDirection(incoming) {

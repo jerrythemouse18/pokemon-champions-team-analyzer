@@ -108,6 +108,12 @@ def extract(chaos_data, dex_moves, dex_items, source):
         if ability:
             entry["ability"] = ability  # chaos id form, resolved app-side
         entry["usage"] = round(d.get("usage", 0) * 100, 2)
+        # Top ladder teammates (co-occurrence weight, normalized 0-100 within mon).
+        tm = d.get("Teammates", {})
+        if tm:
+            mx = max(tm.values()) or 1
+            entry["teammates"] = {k: round(v / mx * 100) for k, v in
+                                  sorted(tm.items(), key=lambda kv: -kv[1])[:10] if v > 0}
         out[name] = entry
     return out
 

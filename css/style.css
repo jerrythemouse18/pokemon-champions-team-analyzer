@@ -411,6 +411,53 @@ td.c-total   { background: transparent; color: var(--ink-2); font-weight: 600; }
 .dmg-chip img { width: 28px; height: 28px; image-rendering: pixelated; margin: -2px 0; }
 .dmg-chip-pct { color: var(--muted); font-size: 10.5px; font-variant-numeric: tabular-nums; }
 
+/* ---- recommended leads ---- */
+.lead-pair {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+  background: var(--surface-2);
+}
+.lead-best { border-color: rgba(57, 135, 229, 0.55); background: rgba(57, 135, 229, 0.08); }
+.lead-rank { color: var(--muted); font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+.lead-best .lead-rank { color: var(--accent); }
+.lead-mons { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.lead-plus { color: var(--muted); font-size: 18px; }
+.lead-names { font-size: 14.5px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.lead-reasons { color: var(--ink-2); font-size: 12.5px; margin-top: 8px; line-height: 1.6; }
+
+/* ---- versus matrix ---- */
+.vs-controls { display: flex; gap: 10px; margin-bottom: 12px; }
+#vs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin-bottom: 14px; }
+.vs-slot {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 8px;
+  min-height: 44px;
+  font-size: 12.5px;
+}
+.vs-slot input {
+  width: 100%;
+  background: var(--page);
+  border: 1px solid var(--grid);
+  border-radius: 6px;
+  color: var(--ink);
+  padding: 6px 8px;
+  font-size: 12.5px;
+}
+.vs-slot input:focus { outline: none; border-color: var(--accent); }
+.vs-slot .autocomplete { left: 0; right: 0; top: 100%; }
+.vs-slot .remove { position: static; margin-left: auto; }
+#vs-table th.colhead { text-align: center; font-size: 11px; }
+#vs-table td { min-width: 46px; }
+#vs-summary b { color: var(--ink); }
+
 /* ---- hover tooltip ---- */
 #hover-tip {
   position: absolute;

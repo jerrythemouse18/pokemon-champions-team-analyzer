@@ -58,6 +58,11 @@
     <div id="summary-chips" class="chip-row"></div>
     <div id="suggestions"></div>
   </section>
+  <section class="card" id="leads-section" hidden>
+    <h2>Recommended leads</h2>
+    <p class="hint">The best two Pokémon to send out first in doubles, scored on type synergy, support moves they actually carry (Fake Out, redirection, Tailwind, Trick Room…), spread damage, weather cores, Intimidate, and how often the pair appears together on the real Champions VGC ladder.</p>
+    <div id="leads-results"></div>
+  </section>
   <section class="card" id="offense-section" hidden>
     <h2>Offensive coverage</h2>
     <p class="hint">Best effectiveness your team's actual damaging moves achieve against each defending type (hover a cell to see which move). Members without move data count as STAB only.</p>
@@ -83,6 +88,17 @@
   </div>
 
   <div class="dash-col">
+  <section class="card" id="versus-section" hidden>
+    <h2>Versus: opposing team</h2>
+    <p class="hint">Enter the opponent's six (search or paste) and see the full 6×6 matchup grid. Each cell nets your member's hardest hit into theirs against their hardest hit back (max damage %, doubles, your saved sets vs their common ladder sets). Blue = you win the trade, red = they do. Hover a cell for the moves behind the number.</p>
+    <div class="vs-controls">
+      <button id="vs-import" class="btn">Paste opposing team</button>
+      <button id="vs-clear" class="btn btn-ghost">Clear opponents</button>
+    </div>
+    <div id="vs-grid"></div>
+    <div class="table-wrap"><table id="vs-table" class="matrix"></table></div>
+    <p id="vs-summary" class="hint"></p>
+  </section>
   <section class="card" id="compat-section" hidden>
     <h2>Pair compatibility</h2>
     <p class="hint">How well each pair of teammates covers the other's weaknesses: <b>+1</b> for each weakness one member has that the other resists, <b>&minus;2</b> for each weakness they share. Click a cell for the breakdown. <span class="key"><span class="swatch sw-res2"></span>strong synergy</span> <span class="key"><span class="swatch sw-res"></span>good</span> <span class="key"><span class="swatch sw-neutral"></span>neutral</span> <span class="key"><span class="swatch sw-weak"></span>poor</span> <span class="key"><span class="swatch sw-weak2"></span>bad</span></p>
@@ -160,6 +176,8 @@
 <script src="js/showdown.js"></script>
 <script src="js/damagecalc.js"></script>
 <script src="js/speedtiers.js"></script>
+<script src="js/leads.js"></script>
+<script src="js/versus.js"></script>
 <script src="js/tooltip.js"></script>
 <script src="js/version.js"></script>
 <script src="js/seteditor.js"></script>

@@ -36,25 +36,31 @@ The layout is a **dashboard**: team builder and the wide defensive matrix span t
 - Flags **unresisted types** (types nobody on your team resists — every hit lands at least neutral)
 - Suggests high-BST Uber/OU/UUBL partners that patch each stacked weakness
 
-### 3. Pair compatibility
+### 3. Recommended leads
+Scores all pairs of your team as **doubles lead combinations** and shows the top three with full reasoning. Signals: type synergy, support moves the pair actually carries (Fake Out, Follow Me/Rage Powder, Tailwind, Trick Room, Icy Wind, Helping Hand…), support-plus-heavy-hitter balance, spread damage, weather cores (setter + abuser as leads), Intimidate, a penalty when one lead's Earthquake also hits its non-immune partner, and **real ladder co-occurrence** — how often the two actually appear on the same Champions VGC teams.
+
+### 4. Versus: opposing team
+Enter the opponent's six (autocomplete or Showdown paste) and get a full **6×6 matchup matrix**: each cell nets your member's hardest hit into theirs against their hardest hit back (max damage %, doubles field, your saved sets vs their common ladder sets — or their pasted sets if you have them). Blue cells mean you win the trade, red means they do; hover shows the exact moves and percentages behind the number. Row/column averages plus a plain-language summary name your best pivot into the team, your weakest member, and their scariest threat.
+
+### 5. Pair compatibility
 A 6×6 synergy matrix scoring every pair of teammates: **+1** for each weakness one member has that the other resists (they cover each other), **−2** for each weakness both share (stacked liability). Click any cell for the exact type-by-type breakdown; the Avg column shows each member's mean synergy with the rest of the team — a quick way to spot the odd one out.
 
-### 4. Defensive matrix
+### 6. Defensive matrix
 An 18-row heatmap: every attacking type vs. every team member, with the exact multiplier (0, ¼, ½, 1, 2, 4×) in each cell and a per-type **weak/resist tally**. Ability modifiers included.
 
-### 5. Offensive coverage
+### 7. Offensive coverage
 For every defending type, the best multiplier any of your team's **actual damaging moves** achieves — hovering (or keyboard-focusing) a cell shows instantly which move(s) deliver the hit. Members without move data fall back to STAB types, and the note under the table says which basis was used.
 
-### 6. Replacement finder
+### 8. Replacement finder
 Select any team member and the app scans the whole Champions roster (Uber/OU/UUBL by default, UU toggleable) for Pokémon that would serve the team better in that slot. Each candidate is scored on the change to the **whole team**, not the individual: super-effective STAB coverage gained, pair synergy with the remaining five, stacked weaknesses removed, unresisted types patched. Every suggestion shows *why* it helps ("unstacks Ice weakness", "adds a resist to Ground", …) and has a one-click **Swap in** button.
 
-### 7. Set editor
+### 9. Set editor
 Click any filled team slot (or its **Edit set** button) to open a full set editor: ability, item and nature (autocompleted from the calc's dex), level, per-stat EVs and IVs with a live **computed-stat row** (nature boosts/drops color-coded, EV budget validated against the 508 cap), and four move slots whose autocomplete lists **only the moves that Pokémon can legally learn in Champions** (learnsets fetched per-mon from the Smogon dex; Megas share their base form's learnset). Illegal moves are rejected on save with a clear message, Showdown imports warn about them, and any slot carrying a not-learnable move (e.g. from a previously saved team) shows a red **⚠ can't learn** badge that opens the editor. There's also a **usage-ranked move picker** — the mon's most common ladder moves shown as one-click chips with usage percentages (e.g. Gholdengo: Shadow Ball 98%, Make It Rain 97%…). Unknown moves and items are rejected on save. Saved sets show on the slot card, persist with the team, feed the damage calculator, and round-trip through Showdown export.
 
-### 8. Showdown import / export
+### 10. Showdown import / export
 Paste a team in [Pokémon Showdown](https://pokemonshowdown.com/) export format to load it — items, EVs/IVs, natures, levels, and moves are all kept, shown on each slot, and used by the damage calculator. Export works the same way (one click copies the paste to your clipboard). Nicknames, gender tags, and non-Champions Pokémon in a paste are handled gracefully.
 
-### 9. Damage calculator
+### 11. Damage calculator
 Real damage math via the open-source [@smogon/calc](https://github.com/smogon/damage-calc) engine (the same library behind the official Showdown damage calculator), vendored as a single script so the site stays build-free. Pick an attacker from your team and any defender from the dex:
 
 - Uses the attacker's **saved set** (item, EVs, nature, level, moves); members without one fall back to their most common ladder moves
@@ -66,13 +72,13 @@ Real damage math via the open-source [@smogon/calc](https://github.com/smogon/da
 - **Singles/Doubles** toggle (doubles spread-damage reduction applied) plus weather and terrain conditions
 - Champions-exclusive Mega Evolutions are fully supported
 
-### 10. Best targets
+### 12. Best targets
 The mirror of Top threats: scans the metagame and ranks Pokémon by how hard your team's **actual saved moves** hit them — who is weak to your team. Shows how many members land a super-effective hit, the single hardest hit and which move delivers it ("Garchomp-Mega's Earthquake, 4×"), and whether the target threatens you back ("safe matchup" when it doesn't). Members without saved moves count with their STAB types; a target's defensive ability is applied when unambiguous.
 
-### 11. Speed tiers
+### 13. Speed tiers
 A level-50 speed ladder mixing your team with the metagame — who moves before whom. Your members (highlighted) use their **saved spread, nature, and item** (Choice Scarf ×1.5 etc.); meta Pokémon show their most common ladder spread's speed (falling back to max-invested). A **search box** looks up any Pokémon across all tiers and shows its full benchmark set (common ladder spread, max-invested, uninvested) alongside your highlighted members. A **Tailwind toggle** doubles your side's speeds, ties are visually grouped, and the list is trimmed to what matters: everything faster than your slowest member plus a short tail below.
 
-### 12. Top threats
+### 14. Top threats
 Scans the Champions metagame (Uber/OU/UUBL by default, UU toggleable) and ranks Pokémon by threat score:
 
 ```
