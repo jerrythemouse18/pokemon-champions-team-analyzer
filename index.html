@@ -108,10 +108,15 @@
     <h2>Damage calculator</h2>
     <p class="hint">Real damage ranges via the open-source <a href="https://github.com/smogon/damage-calc" target="_blank" rel="noopener">@smogon/calc</a> engine. Uses each member's saved moves, items, EVs and nature; defenders get their most common ladder spread, so ranges reflect what you'd actually meet.</p>
     <div class="dmg-controls">
-      <select id="dmg-attacker" aria-label="Attacking team member"></select>
-      <span class="dmg-vs">vs</span>
+      <div class="dmg-direction" role="group" aria-label="Damage direction">
+        <button id="dmg-dir-out" class="dmg-dir-btn active" type="button">My attacks</button>
+        <button id="dmg-dir-in" class="dmg-dir-btn" type="button">Incoming</button>
+        <input type="checkbox" id="dmg-incoming" hidden>
+      </div>
+      <select id="dmg-attacker" aria-label="Your team member"></select>
+      <span class="dmg-vs" id="dmg-vs-label">vs</span>
       <span class="dmg-defender-wrap">
-        <input type="text" id="dmg-defender" placeholder="Search defender…" aria-label="Defending Pokémon">
+        <input type="text" id="dmg-defender" placeholder="Search defender…" aria-label="Opposing Pokémon">
         <div class="autocomplete" id="dmg-defender-ac" hidden></div>
       </span>
       <label class="toggle"><input type="checkbox" id="dmg-doubles" checked> Doubles</label>
@@ -131,7 +136,7 @@
       </select>
     </div>
     <div id="dmg-common">
-      <div class="dmg-common-title">Most used on the Champions VGC ladder — click to load as defender</div>
+      <div class="dmg-common-title" id="dmg-common-title">Most used on the Champions VGC ladder — click to load as defender</div>
       <div id="dmg-common-list"></div>
     </div>
     <div id="dmg-results"></div>

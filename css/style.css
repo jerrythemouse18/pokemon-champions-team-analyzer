@@ -375,6 +375,21 @@ td.c-total   { background: transparent; color: var(--ink-2); font-weight: 600; }
 #offense-table th.colhead { font-size: 10.5px; padding: 4px 1px; max-width: none; }
 #offense-table th { padding: 4px 3px; font-size: 11.5px; }
 
+/* ---- damage calc: direction toggle ---- */
+.dmg-direction { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.dmg-dir-btn {
+  background: transparent;
+  color: var(--muted);
+  border: none;
+  padding: 7px 14px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.dmg-dir-btn.active { background: rgba(57, 135, 229, 0.18); color: var(--ink); }
+.dmg-dir-btn:not(.active):hover { color: var(--ink-2); }
+.dmg-dir { color: var(--ink-2); }
+.dmg-dir b { color: var(--ink); }
+
 /* ---- damage calc: common-defender chips ---- */
 #dmg-common { margin: 12px 0; }
 .dmg-common-title { color: var(--muted); font-size: 12px; margin-bottom: 8px; }

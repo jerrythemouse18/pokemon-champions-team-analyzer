@@ -88,17 +88,21 @@ function renderDamageResults(mons) {
   const out = document.querySelector('#dmg-results');
   const selName = document.querySelector('#dmg-attacker').value;
   const mon = mons.find(m => m.name === selName) || mons[0];
-  if (!mon || !dmgDefender) { out.innerHTML = dmgDefender ? '' : '<p class="hint">Choose a defender to see damage ranges.</p>'; return; }
+  const incoming = document.querySelector('#dmg-incoming').checked;
+  if (!mon || !dmgDefender) { out.innerHTML = dmgDefender ? '' : `<p class="hint">Choose ${incoming ? 'an opposing attacker' : 'a defender'} to see damage ranges.</p>`; return; }
 
   const byName = new Map(POKEMON_DATA.map(p => [p.name, p]));
-  const atkDex = byName.get(mon.name);
-  const defDex = dmgDefender;
+  const teamDex = byName.get(mon.name);
+  const oppDex = dmgDefender;
 
-  const attacker = toCalcPokemon(mon, atkDex);
-  // Defender gets its most common ladder spread/item when known, so the
-  // percentages reflect what you'd actually meet.
-  const defSet = typeof defaultSet === 'function' ? defaultSet(defDex.name) : null;
-  const defender = toCalcPokemon({ name: defDex.name, ability: 0, set: defSet || undefined }, defDex);
+  // The opposing mon always gets its most common ladder set (spread, item,
+  // and — in incoming mode — its moves), so numbers reflect what you'd meet.
+  const oppSet = typeof defaultSet === 'function' ? defaultSet(oppDex.name) : null;
+  const teamMon = toCalcPokemon(mon, teamDex);
+  const oppMon = toCalcPokemon({ name: oppDex.name, ability: 0, set: oppSet || undefined }, oppDex);
+
+  const attacker = incoming ? oppMon : teamMon;
+  const defender = incoming ? teamMon : oppMon;
 
   const field = new CALC.Field({
     gameType: document.querySelector('#dmg-doubles').checked ? 'Doubles' : 'Singles',
@@ -106,8 +110,14 @@ function renderDamageResults(mons) {
     terrain: document.querySelector('#dmg-terrain').value || undefined,
   });
 
-  const moves = (mon.set && mon.set.moves && mon.set.moves.length) ? mon.set.moves : defaultMoves(atkDex);
-  const usingDefaults = !(mon.set && mon.set.moves && mon.set.moves.length);
+  let moves, usingDefaults;
+  if (incoming) {
+    moves = oppSet ? oppSet.moves : defaultMoves(oppDex);
+    usingDefaults = false; // opposing sets are always ladder-common by design
+  } else {
+    moves = (mon.set && mon.set.moves && mon.set.moves.length) ? mon.set.moves : defaultMoves(teamDex);
+    usingDefaults = !(mon.set && mon.set.moves && mon.set.moves.length);
+  }
 
   const rows = [];
   for (const mvName of moves) {
@@ -130,7 +140,10 @@ function renderDamageResults(mons) {
 
   rows.sort((a, b) => (b.hi || 0) - (a.hi || 0));
 
-  out.innerHTML =
+  const dirNote = incoming
+    ? `<p class="hint dmg-dir">⚠ <b>${oppDex.name}</b> (common ladder set) attacking your <b>${mon.name}</b> — can you survive?</p>`
+    : '';
+  out.innerHTML = dirNote +
     (usingDefaults ? '<p class="hint">No saved moveset for this member — showing its most common ladder moves (or generic STAB when unranked). Click the team slot to set exact moves.</p>' : '') +
     rows.map(r => {
       if (r.status) return `<div class="threat"><span class="threat-name">${r.name}</span><span class="threat-detail">status move — no damage</span></div>`;

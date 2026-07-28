@@ -955,4 +955,20 @@ $('#dmg-attacker').addEventListener('change', () => renderDamageResults(team.fil
 attachDefenderPicker();
 renderCommonDefenders();
 
+// Damage direction toggle: outgoing (my attacks) vs incoming (opponent attacks me).
+function setDmgDirection(incoming) {
+  $('#dmg-incoming').checked = incoming;
+  $('#dmg-dir-out').classList.toggle('active', !incoming);
+  $('#dmg-dir-in').classList.toggle('active', incoming);
+  $('#dmg-vs-label').textContent = incoming ? '◀ attacked by' : 'vs';
+  $('#dmg-defender').placeholder = incoming ? 'Search attacker…' : 'Search defender…';
+  $('#dmg-common-title').textContent = incoming
+    ? 'Most used on the Champions VGC ladder — click to load as the attacker'
+    : 'Most used on the Champions VGC ladder — click to load as defender';
+  const mons = team.filter(Boolean);
+  if (mons.length) renderDamageResults(mons);
+}
+$('#dmg-dir-out').addEventListener('click', () => setDmgDirection(false));
+$('#dmg-dir-in').addEventListener('click', () => setDmgDirection(true));
+
 renderTeam();
