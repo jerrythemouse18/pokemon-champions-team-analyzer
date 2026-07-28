@@ -164,6 +164,31 @@ main { max-width: 1200px; margin: 0 auto; padding: 12px 28px 40px; }
 .btn:hover { border-color: var(--muted); }
 .btn-ghost { background: transparent; color: var(--ink-2); }
 
+/* ---- team tabs ---- */
+.team-tabs { display: flex; gap: 4px; margin-bottom: 14px; border-bottom: 1px solid var(--grid); }
+.team-tab {
+  background: transparent;
+  color: var(--muted);
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 8px 16px;
+  font-size: 13.5px;
+  cursor: pointer;
+  margin-bottom: -1px;
+}
+.team-tab:hover { color: var(--ink-2); }
+.team-tab.active { color: var(--ink); border-bottom-color: var(--accent); font-weight: 600; }
+.team-tab-count {
+  display: inline-block;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 10.5px;
+  padding: 0 6px;
+  margin-left: 4px;
+  color: var(--ink-2);
+}
+
 /* ---- team slots ---- */
 .team-grid {
   display: grid;

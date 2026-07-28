@@ -28,7 +28,8 @@ The layout is a **dashboard**: team builder and the wide defensive matrix span t
 - Shows types, tier, ability, and base stats for each pick
 - **Auto-filled movesets** — every pick loads its most common competitive doubles set (top-4 moves, item, nature, EV spread, ability) from Champions VGC ladder usage stats (1.16M battles, June 2026); 282 of 323 Pokémon have usage data, the rest start blank
 - **Ability selector** — abilities that change type matchups (marked ★) are factored into all defensive math: Levitate, Water/Volt Absorb, Flash Fire, Lightning Rod, Motor Drive, Sap Sipper, Earth Eater, Dry Skin, Thick Fat, Heatproof, Fluffy, Water Bubble, Purifying Salt
-- Team persists in `localStorage` **and** in the URL hash, so you can bookmark or share a team link
+- **Three team tabs** — build and compare up to 3 teams; switching tabs reloads every analysis card for the selected team. Each tab shows its member count; all teams persist in `localStorage`
+- The active team also encodes into the URL hash, so you can bookmark or share a team link
 
 ### 2. Team summary
 - **Team archetype detection** — labels your team's playstyle the way competitive players talk about teams: **Rain / Sun / Sand / Snow** (weather setter + abusers + boosted STAB), **Trick Room** (multiple slow, hard-hitting members), **Hyper Offense** (fast heavy hitters, snowball abilities, high team Speed), **Stall / Fat Balance** (bulk + longevity abilities like Regenerator/Unaware), falling back to **Balance** when no specialist signal dominates. Every label shows its evidence, plus secondary tendencies (e.g. "Sand team, with a Trick Room mode"). Detection reads abilities and stats (not the four chosen moves, which can change freely).

@@ -2,41 +2,92 @@
 // State: 6 slots, each null or { name, ability } (ability index into the mon's ability list).
 
 const SLOTS = 6;
+const TEAM_COUNT = 3;
 const byName = new Map(POKEMON_DATA.map(p => [p.name, p]));
-let team = loadTeam();
+let teams = loadTeams();
+let activeTeam = loadActiveTeam();
+let team = teams[activeTeam];
 
 const $ = sel => document.querySelector(sel);
 const teamGrid = $('#team-grid');
 
 // ---------- persistence ----------
-function loadTeam() {
+function _sanitizeTeam(t) {
+  if (!Array.isArray(t) || t.length !== SLOTS) return null;
+  return t.map(m => (m && byName.has(m.name)) ? m : null);
+}
+
+function loadTeams() {
   let stored = null;
   try {
-    const raw = localStorage.getItem('champions-team');
+    const raw = localStorage.getItem('champions-teams');
     if (raw) {
-      const t = JSON.parse(raw);
-      if (Array.isArray(t) && t.length === SLOTS) {
-        stored = t.map(m => (m && byName.has(m.name)) ? m : null);
+      const arr = JSON.parse(raw);
+      if (Array.isArray(arr)) {
+        stored = Array.from({ length: TEAM_COUNT }, (_, i) => _sanitizeTeam(arr[i]) || Array(SLOTS).fill(null));
+      }
+    }
+    // Migrate the old single-team key into tab 1.
+    if (!stored) {
+      const old = localStorage.getItem('champions-team');
+      if (old) {
+        stored = Array.from({ length: TEAM_COUNT }, () => Array(SLOTS).fill(null));
+        stored[0] = _sanitizeTeam(JSON.parse(old)) || Array(SLOTS).fill(null);
       }
     }
   } catch (e) { /* ignore corrupt state */ }
+  if (!stored) stored = Array.from({ length: TEAM_COUNT }, () => Array(SLOTS).fill(null));
 
-  // URL hash wins over localStorage so shared links work — but the hash only
+  // URL hash wins for the ACTIVE tab so shared links work — but the hash only
   // carries name:ability, so if it matches the stored team, prefer stored
-  // (which keeps imported movesets/EVs).
+  // (which keeps saved movesets/EVs).
   const fromHash = decodeHash();
   if (fromHash) {
-    const sameMons = stored && fromHash.every((m, i) =>
-      (m === null) === (stored[i] === null) && (!m || m.name === stored[i].name));
-    return sameMons ? stored : fromHash;
+    const idx = loadActiveTeam();
+    const cur = stored[idx];
+    const sameMons = fromHash.every((m, i) =>
+      (m === null) === (cur[i] === null) && (!m || m.name === cur[i].name));
+    if (!sameMons) stored[idx] = fromHash;
   }
-  return stored || Array(SLOTS).fill(null);
+  return stored;
+}
+
+function loadActiveTeam() {
+  const i = parseInt(localStorage.getItem('champions-active-team'), 10);
+  return (i >= 0 && i < TEAM_COUNT) ? i : 0;
 }
 
 function saveTeam() {
-  localStorage.setItem('champions-team', JSON.stringify(team));
+  teams[activeTeam] = team; // sample/clear/import reassign `team` — resync
+  localStorage.setItem('champions-teams', JSON.stringify(teams));
+  localStorage.setItem('champions-active-team', String(activeTeam));
   const packed = team.map(m => m ? encodeURIComponent(m.name) + (m.ability ? ':' + m.ability : '') : '').join(',');
   history.replaceState(null, '', packed.replace(/,+$/, '') ? '#team=' + packed : location.pathname);
+}
+
+// ---------- team tabs ----------
+function switchTeam(idx) {
+  if (idx === activeTeam) return;
+  teams[activeTeam] = team;
+  activeTeam = idx;
+  team = teams[activeTeam];
+  compatSelection = null; // pair-detail indices are per-team
+  renderTeam(); // re-renders tabs + every analysis card for the newly active team
+}
+
+function renderTeamTabs() {
+  const tabs = $('#team-tabs');
+  tabs.innerHTML = '';
+  teams.forEach((t, i) => {
+    const count = (i === activeTeam ? team : t).filter(Boolean).length;
+    const btn = document.createElement('button');
+    btn.className = 'team-tab' + (i === activeTeam ? ' active' : '');
+    btn.setAttribute('role', 'tab');
+    btn.setAttribute('aria-selected', i === activeTeam);
+    btn.innerHTML = `Team ${i + 1}${count ? ` <span class="team-tab-count">${count}</span>` : ''}`;
+    btn.addEventListener('click', () => switchTeam(i));
+    tabs.appendChild(btn);
+  });
 }
 
 function decodeHash() {
@@ -61,6 +112,7 @@ function decodeHash() {
 function renderTeam() {
   teamGrid.innerHTML = '';
   team.forEach((mon, i) => teamGrid.appendChild(mon ? filledSlot(mon, i) : emptySlot(i)));
+  renderTeamTabs();
   renderAnalysis();
   saveTeam();
 }
