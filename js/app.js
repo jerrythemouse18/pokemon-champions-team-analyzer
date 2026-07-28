@@ -960,7 +960,7 @@ $('#target-uu').addEventListener('change', () => {
   const mons = team.filter(Boolean);
   if (mons.length) renderTargets(mons);
 });
-['#speed-uu', '#speed-tailwind'].forEach(sel => $(sel).addEventListener('change', () => {
+['#speed-uu', '#speed-tailwind', '#speed-weather'].forEach(sel => $(sel).addEventListener('change', () => {
   const mons = team.filter(Boolean);
   if (mons.length) renderSpeedTiers(mons);
 }));

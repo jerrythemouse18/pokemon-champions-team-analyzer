@@ -83,6 +83,13 @@
       <input type="text" id="speed-search" placeholder="Search Pokémon…" aria-label="Filter speed tiers by Pokémon name">
       <label class="toggle"><input type="checkbox" id="speed-uu"> Include UU tier</label>
       <label class="toggle"><input type="checkbox" id="speed-tailwind"> Tailwind on your side (×2)</label>
+      <select id="speed-weather" aria-label="Weather for speed abilities">
+        <option value="">No weather</option>
+        <option value="Rain">Rain (Swift Swim ×2)</option>
+        <option value="Sun">Sun (Chlorophyll ×2)</option>
+        <option value="Sand">Sand (Sand Rush ×2)</option>
+        <option value="Snow">Snow (Slush Rush ×2)</option>
+      </select>
     </div>
     <div class="table-wrap"><table id="speed-table" class="matrix speed"></table></div>
   </section>

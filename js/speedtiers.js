@@ -3,6 +3,24 @@
 
 const SPEED_ITEM_MODS = { 'Choice Scarf': 1.5, 'Iron Ball': 0.5, 'Power Anklet': 0.5, 'Macho Brace': 0.5 };
 
+// Ability that doubles Speed under each weather.
+const WEATHER_SPEED_ABILITY = {
+  Rain: 'Swift Swim',
+  Sun: 'Chlorophyll',
+  Sand: 'Sand Rush',
+  Snow: 'Slush Rush',
+};
+
+// Does this ability double speed in the selected weather? For meta mons we
+// use their most common ladder ability, falling back to "any ability they
+// could run" so a Swift Swim option is never hidden.
+function weatherBoostsMon(weather, ability, allAbilities) {
+  if (!weather) return false;
+  const boostAbility = WEATHER_SPEED_ABILITY[weather];
+  if (ability) return ability === boostAbility;
+  return (allAbilities || []).includes(boostAbility);
+}
+
 // Level-50 stat from base speed, EVs (0-252), IVs, and nature multiplier.
 function speedStat(base, ev, iv, natureMult) {
   return Math.floor((Math.floor((2 * base + iv + Math.floor(ev / 4)) * 50 / 100) + 5) * natureMult);
@@ -15,8 +33,9 @@ function natureSpeedMult(natureName) {
   return nat.plus === 'spe' ? 1.1 : nat.minus === 'spe' ? 0.9 : 1;
 }
 
-// A team member's actual speed: saved spread + nature + item, optional tailwind.
-function memberSpeed(mon, tailwind) {
+// A team member's actual speed: saved spread + nature + item, optional
+// tailwind and weather-ability boost (uses the member's selected ability).
+function memberSpeed(mon, tailwind, weather) {
   const p = byName.get(mon.name);
   const set = mon.set || {};
   const ev = (set.evs && set.evs.spe) || 0;
@@ -24,28 +43,39 @@ function memberSpeed(mon, tailwind) {
   let spe = speedStat(p.stats.spe, ev, iv, natureSpeedMult(set.nature));
   const itemMod = set.item && SPEED_ITEM_MODS[set.item];
   if (itemMod) spe = Math.floor(spe * itemMod);
+  if (weather && weatherBoostsMon(weather, monAbility(mon))) spe *= 2;
   if (tailwind) spe *= 2;
   return spe;
 }
 
-// Meta benchmarks for a dex entry: common ladder spread (when known), max, uninvested.
-function metaSpeeds(p) {
+// Meta benchmarks for a dex entry: common ladder spread (when known), max,
+// uninvested. Weather boost applies when the mon's ladder-common ability is
+// the booster (or any of its abilities, when unranked).
+function metaSpeeds(p, weather) {
   const ms = movesetFor(p.name);
+  const ladderAbility = ms && ms.ability
+    ? p.abilities[abilityIndexFromId(p, ms.ability)] || null
+    : null;
+  const boosted = weatherBoostsMon(weather, ladderAbility, p.abilities);
+  const boost = spe => boosted ? spe * 2 : spe;
+  const tag = boosted ? ` · ${WEATHER_SPEED_ABILITY[weather]}` : '';
+
   const out = [];
   if (ms && ms.evs) {
     const nat = ms.nature || 'Serious';
     let spe = speedStat(p.stats.spe, ms.evs.spe || 0, 31, natureSpeedMult(nat));
     if (ms.item && SPEED_ITEM_MODS[ms.item]) spe = Math.floor(spe * SPEED_ITEM_MODS[ms.item]);
-    out.push({ kind: 'common', spe, note: `${nat}${ms.evs.spe ? ` ${ms.evs.spe} Spe` : ''}${ms.item && SPEED_ITEM_MODS[ms.item] ? ` @ ${ms.item}` : ''}` });
+    out.push({ kind: 'common', spe: boost(spe), note: `${nat}${ms.evs.spe ? ` ${ms.evs.spe} Spe` : ''}${ms.item && SPEED_ITEM_MODS[ms.item] ? ` @ ${ms.item}` : ''}${tag}` });
   }
-  out.push({ kind: 'max', spe: speedStat(p.stats.spe, 252, 31, 1.1), note: '252 Spe, +nature' });
-  out.push({ kind: 'base', spe: speedStat(p.stats.spe, 0, 31, 1), note: 'uninvested' });
+  out.push({ kind: 'max', spe: boost(speedStat(p.stats.spe, 252, 31, 1.1)), note: '252 Spe, +nature' + tag });
+  out.push({ kind: 'base', spe: boost(speedStat(p.stats.spe, 0, 31, 1)), note: 'uninvested' + tag });
   return out;
 }
 
 function renderSpeedTiers(mons) {
   const includeUU = $('#speed-uu').checked;
   const tailwind = $('#speed-tailwind').checked;
+  const weather = $('#speed-weather').value;
   const query = $('#speed-search').value.trim().toLowerCase();
   const tiers = includeUU ? ['Uber', 'OU', 'UUBL', 'UU'] : ['Uber', 'OU', 'UUBL'];
   const picked = new Set(mons.map(m => m.name));
@@ -57,8 +87,9 @@ function renderSpeedTiers(mons) {
     if (set.nature && natureSpeedMult(set.nature) !== 1) bits.push(natureSpeedMult(set.nature) > 1 ? '+Spe nature' : '−Spe nature');
     if (set.evs && set.evs.spe) bits.push(`${set.evs.spe} Spe EVs`);
     if (set.item && SPEED_ITEM_MODS[set.item]) bits.push(`@ ${set.item}`);
+    if (weather && weatherBoostsMon(weather, monAbility(m))) bits.push(WEATHER_SPEED_ABILITY[weather]);
     if (tailwind) bits.push('Tailwind');
-    rows.push({ name: m.name, spe: memberSpeed(m, tailwind), mine: true, note: bits.join(', ') || 'no speed investment' });
+    rows.push({ name: m.name, spe: memberSpeed(m, tailwind, weather), mine: true, note: bits.join(', ') || 'no speed investment' });
   }
 
   for (const p of POKEMON_DATA) {
@@ -66,7 +97,7 @@ function renderSpeedTiers(mons) {
     // A search looks across ALL tiers (finding "Dragapult" shouldn't require
     // the right tier toggle); otherwise the tier filter applies.
     if (query ? !p.name.toLowerCase().includes(query) : !tiers.includes(p.tier)) continue;
-    const speeds = metaSpeeds(p);
+    const speeds = metaSpeeds(p, weather);
     if (query) {
       // Searched mons show every benchmark: common, max, and uninvested.
       for (const s of speeds) {
