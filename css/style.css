@@ -58,7 +58,14 @@ main { max-width: 1200px; margin: 0 auto; padding: 12px 28px 40px; }
 .card h2 { margin: 0 0 6px; font-size: 17px; }
 .hint { color: var(--muted); font-size: 13px; margin: 0 0 14px; }
 
+#version-badge {
+  position: fixed;
+  top: 12px;
+  right: 16px;
+  z-index: 150;
+}
 #version-badge a {
+  background: var(--page);
   display: inline-flex;
   align-items: center;
   gap: 6px;
