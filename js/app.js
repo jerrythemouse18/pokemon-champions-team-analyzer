@@ -949,7 +949,7 @@ $('#btn-export').addEventListener('click', () => {
 
 // ---------- damage calculator events ----------
 $('#dmg-attacker').addEventListener('change', () => renderDamageResults(team.filter(Boolean)));
-['#dmg-doubles', '#dmg-weather', '#dmg-terrain'].forEach(sel => {
+['#dmg-doubles', '#dmg-weather', '#dmg-terrain', '#dmg-maxspread'].forEach(sel => {
   $(sel).addEventListener('change', () => renderDamageResults(team.filter(Boolean)));
 });
 attachDefenderPicker();

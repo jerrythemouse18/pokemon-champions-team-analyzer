@@ -84,6 +84,29 @@ function renderDamageCalc(mons) {
 
 let dmgDefender = null; // dex entry chosen in the defender autocomplete
 
+// "Max spreads" worst-case variants. The relevant stats depend on the move
+// category, so both are built and picked per move. Nature names are the
+// +Atk/+SpA/+Def/+SpD neutrals-elsewhere ones; items/level/moves unchanged.
+function maxOffenseSet(baseSet, category) {
+  const physical = category === 'Physical';
+  return {
+    ...(baseSet || {}),
+    nature: physical ? 'Adamant' : 'Modest',
+    evs: physical ? { atk: 252 } : { spa: 252 },
+    ivs: {},
+  };
+}
+
+function maxDefenseSet(baseSet, category) {
+  const physical = category === 'Physical';
+  return {
+    ...(baseSet || {}),
+    nature: physical ? 'Bold' : 'Calm',
+    evs: physical ? { hp: 252, def: 252 } : { hp: 252, spd: 252 },
+    ivs: {},
+  };
+}
+
 function renderDamageResults(mons) {
   const out = document.querySelector('#dmg-results');
   const selName = document.querySelector('#dmg-attacker').value;
@@ -98,11 +121,25 @@ function renderDamageResults(mons) {
   // The opposing mon always gets its most common ladder set (spread, item,
   // and — in incoming mode — its moves), so numbers reflect what you'd meet.
   const oppSet = typeof defaultSet === 'function' ? defaultSet(oppDex.name) : null;
-  const teamMon = toCalcPokemon(mon, teamDex);
-  const oppMon = toCalcPokemon({ name: oppDex.name, ability: 0, set: oppSet || undefined }, oppDex);
+  const maxSpread = document.querySelector('#dmg-maxspread').checked;
 
-  const attacker = incoming ? oppMon : teamMon;
-  const defender = incoming ? teamMon : oppMon;
+  // Per-category Pokemon builders (max-spread mode swaps EVs/nature per move).
+  const teamSet = mon.set || {};
+  const buildAttacker = cat => {
+    const base = incoming ? { name: oppDex.name, ability: 0, set: oppSet || undefined } : mon;
+    const dex = incoming ? oppDex : teamDex;
+    if (!maxSpread) return toCalcPokemon(base, dex);
+    return toCalcPokemon({ ...base, set: maxOffenseSet(incoming ? oppSet : teamSet, cat) }, dex);
+  };
+  const buildDefender = cat => {
+    const base = incoming ? mon : { name: oppDex.name, ability: 0, set: oppSet || undefined };
+    const dex = incoming ? teamDex : oppDex;
+    if (!maxSpread) return toCalcPokemon(base, dex);
+    return toCalcPokemon({ ...base, set: maxDefenseSet(incoming ? teamSet : oppSet, cat) }, dex);
+  };
+  // Non-max mode: category-independent, build once.
+  let attacker = buildAttacker('Physical');
+  let defender = buildDefender('Physical');
 
   const field = new CALC.Field({
     gameType: document.querySelector('#dmg-doubles').checked ? 'Doubles' : 'Singles',
@@ -121,17 +158,21 @@ function renderDamageResults(mons) {
 
   const rows = [];
   for (const mvName of moves) {
-    let result;
+    let result, defForMove = defender;
     try {
       const mv = new CALC.Move(CALC_GEN, mvName);
       if (mv.category === 'Status') { rows.push({ name: mvName, status: true }); continue; }
-      result = CALC.calculate(CALC_GEN, attacker, defender, mv, field);
+      if (maxSpread) {
+        attacker = buildAttacker(mv.category);
+        defForMove = buildDefender(mv.category);
+      }
+      result = CALC.calculate(CALC_GEN, attacker, defForMove, mv, field);
     } catch (e) {
       rows.push({ name: mvName, error: true });
       continue;
     }
     const range = result.range();
-    const maxHP = defender.maxHP();
+    const maxHP = defForMove.maxHP();
     const lo = (range[0] / maxHP * 100), hi = (range[1] / maxHP * 100);
     let ko = '';
     try { ko = result.kochance().text; } catch (e) { /* 0-damage results have no KO chance */ }
@@ -141,9 +182,12 @@ function renderDamageResults(mons) {
   rows.sort((a, b) => (b.hi || 0) - (a.hi || 0));
 
   const dirNote = incoming
-    ? `<p class="hint dmg-dir">⚠ <b>${oppDex.name}</b> (common ladder set) attacking your <b>${mon.name}</b> — can you survive?</p>`
+    ? `<p class="hint dmg-dir">⚠ <b>${oppDex.name}</b> (${maxSpread ? 'max offensive spread' : 'common ladder set'}) attacking your <b>${mon.name}</b>${maxSpread ? ' (max defensive spread)' : ''} — can you survive?</p>`
     : '';
-  out.innerHTML = dirNote +
+  const maxNote = maxSpread
+    ? `<p class="hint dmg-dir">Max spreads: attacker 252 EVs +nature in the attacking stat, defender 252 HP / 252 +nature in the matching defense — the worst-case matchup. Items and moves unchanged.</p>`
+    : '';
+  out.innerHTML = dirNote + maxNote +
     (usingDefaults ? '<p class="hint">No saved moveset for this member — showing its most common ladder moves (or generic STAB when unranked). Click the team slot to set exact moves.</p>' : '') +
     rows.map(r => {
       if (r.status) return `<div class="threat"><span class="threat-name">${r.name}</span><span class="threat-detail">status move — no damage</span></div>`;

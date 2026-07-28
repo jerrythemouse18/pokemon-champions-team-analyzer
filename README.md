@@ -59,6 +59,7 @@ Real damage math via the open-source [@smogon/calc](https://github.com/smogon/da
 
 - Uses the attacker's **saved set** (item, EVs, nature, level, moves); members without one fall back to their most common ladder moves
 - Defenders get their **most common ladder spread and item**, so percentages reflect what you'd actually meet
+- A **Max spreads toggle** for worst-case planning: the attacker gets 252 EVs + boosting nature in its attacking stat, the defender gets 252 HP + 252 EVs + boosting nature in the matching defense — chosen per move category (physical vs special). Default stays the realistic common-ladder/saved spreads.
 - A **direction toggle**: *My attacks* shows your member hitting the opponent; *Incoming* inverts it — the opponent (with its most common ladder moves, spread, and item) attacking your member, so you can check whether you survive (e.g. "Garchomp's Earthquake vs your Gholdengo: 106–125%, guaranteed OHKO")
 - A **top-30 chip list** of the most-used ladder Pokémon (with usage %) sits above the results — one click loads any of them as the defender; the search box still covers the full dex
 - Per-move **damage ranges and KO chances** ("93.8% chance to OHKO")
