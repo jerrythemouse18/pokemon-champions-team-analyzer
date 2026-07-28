@@ -72,10 +72,12 @@ function renderDamageCalc(mons) {
   section.hidden = mons.length === 0;
   if (!mons.length) return;
 
+  // Options are keyed by NAME, not position — a positional index silently
+  // points at a different mon whenever the team is edited or reordered.
   const atkSel = document.querySelector('#dmg-attacker');
   const prevAtk = atkSel.value;
-  atkSel.innerHTML = mons.map((m, i) => `<option value="${i}">${m.name}</option>`).join('');
-  if (prevAtk !== '' && +prevAtk < mons.length) atkSel.value = prevAtk;
+  atkSel.innerHTML = mons.map(m => `<option value="${m.name}">${m.name}</option>`).join('');
+  if (prevAtk && mons.some(m => m.name === prevAtk)) atkSel.value = prevAtk;
 
   renderDamageResults(mons);
 }
@@ -84,7 +86,8 @@ let dmgDefender = null; // dex entry chosen in the defender autocomplete
 
 function renderDamageResults(mons) {
   const out = document.querySelector('#dmg-results');
-  const mon = mons[+document.querySelector('#dmg-attacker').value || 0];
+  const selName = document.querySelector('#dmg-attacker').value;
+  const mon = mons.find(m => m.name === selName) || mons[0];
   if (!mon || !dmgDefender) { out.innerHTML = dmgDefender ? '' : '<p class="hint">Choose a defender to see damage ranges.</p>'; return; }
 
   const byName = new Map(POKEMON_DATA.map(p => [p.name, p]));
@@ -141,6 +144,34 @@ function renderDamageResults(mons) {
     }).join('');
 }
 
+// Top-30 most used mons on the ladder, as one-click defender chips.
+function renderCommonDefenders() {
+  const list = document.querySelector('#dmg-common-list');
+  if (!list || typeof MOVESET_DATA === 'undefined') return;
+  const byNameLocal = new Map(POKEMON_DATA.map(p => [p.name, p]));
+  const top = Object.entries(MOVESET_DATA)
+    .filter(([name, ms]) => ms.source === 'vgc' && byNameLocal.has(name))
+    .sort((a, b) => b[1].usage - a[1].usage)
+    .slice(0, 30);
+
+  list.innerHTML = '';
+  for (const [name, ms] of top) {
+    const chip = document.createElement('button');
+    chip.className = 'dmg-chip';
+    chip.dataset.name = name;
+    chip.innerHTML = `${spriteImg(name, '')}<span>${name}</span><span class="dmg-chip-pct">${ms.usage.toFixed(0)}%</span>`;
+    chip.title = `${name} — ${ms.usage.toFixed(1)}% usage. Click to load as defender.`;
+    chip.addEventListener('click', () => {
+      dmgDefender = byNameLocal.get(name);
+      document.querySelector('#dmg-defender').value = name;
+      list.querySelectorAll('.dmg-chip').forEach(c => c.classList.toggle('active', c === chip));
+      renderDamageResults(team.filter(Boolean));
+      document.querySelector('#dmg-results').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+    list.appendChild(chip);
+  }
+}
+
 function attachDefenderPicker() {
   const input = document.querySelector('#dmg-defender');
   const ac = document.querySelector('#dmg-defender-ac');
@@ -161,6 +192,8 @@ function attachDefenderPicker() {
         dmgDefender = p;
         input.value = p.name;
         ac.hidden = true;
+        // Sync chip highlight with the typed pick.
+        document.querySelectorAll('.dmg-chip').forEach(c => c.classList.toggle('active', c.dataset.name === p.name));
         renderDamageResults(team.filter(Boolean));
       });
       ac.appendChild(item);

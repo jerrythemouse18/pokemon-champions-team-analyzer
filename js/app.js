@@ -953,5 +953,6 @@ $('#dmg-attacker').addEventListener('change', () => renderDamageResults(team.fil
   $(sel).addEventListener('change', () => renderDamageResults(team.filter(Boolean)));
 });
 attachDefenderPicker();
+renderCommonDefenders();
 
 renderTeam();
